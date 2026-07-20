@@ -356,6 +356,51 @@ const GRAMMAR_UNITS = [
       { q: 'It is important that the report ___ accurate before publication.', choices: ['is','be','was','will be'], answer: 1, note: 'It is important that + S + 原形。' },
     ],
   },
+  {
+    id: 'g_conditionals_advanced', title: '仮定法過去・過去完了・混合型', targetParts: ['P5','P6'],
+    explanation: '仮定法は「事実に反する仮定」を表す。現在の事実に反する場合はIf + 過去形, would/could/might + 動詞原形（仮定法過去）。be動詞は主語に関わらずwereを使うのが伝統的な用法。過去の事実に反する場合はIf + had + 過去分詞, would/could/might + have + 過去分詞（仮定法過去完了）。過去の条件が現在の結果に影響する混合型（If + had + 過去分詞, would + 動詞原形）もある。',
+    quiz: [
+      { q: 'If I ___ you, I would accept the job offer.', choices: ['am','was','were','be'], answer: 2, note: '仮定法過去ではbe動詞は主語に関わらずwereを使うのが伝統的な用法。' },
+      { q: 'If the company ___ more research, it could have avoided the product failure.', choices: ['did','had done','has done','would do'], answer: 1, note: '過去の事実に反する仮定（仮定法過去完了）はIf + had + 過去分詞。' },
+      { q: 'She would attend the seminar if she ___ free this afternoon.', choices: ['is','was','were','has been'], answer: 2, note: '仮定法過去、be動詞はwere。' },
+      { q: 'If he had studied the contract more carefully, he ___ the risk.', choices: ['would notice','would have noticed','notices','will notice'], answer: 1, note: '仮定法過去完了の帰結節はwould have + 過去分詞。' },
+      { q: 'If she had taken that job offer last year, she ___ in a much better position now.', choices: ['would be','would have been','will be','is'], answer: 0, note: '混合型仮定法：過去の条件（if節はhad + pp）が現在の結果（帰結節はwould + 動詞原形）に影響するパターン。' },
+    ],
+  },
+  {
+    id: 'g_subjunctive_extra', title: '仮定法：倒置・wish・その他の表現', targetParts: ['P5','P6'],
+    explanation: 'フォーマルな文書ではifを省略して倒置する形が使われる（Were I ~, / Had I known ~, / Should you need ~,）。wish + 仮定法過去/過去完了は現在/過去への後悔・願望を表す。as if / as thoughは「まるで〜であるかのように」。without / but for / otherwiseは「〜がなければ」という仮定を表す。',
+    quiz: [
+      { q: '___ you need any further assistance, please contact our support team.', choices: ['If','Should','Were','Unless'], answer: 1, note: 'Should you need ~はIf you should need ~のifを省略した倒置形。' },
+      { q: '___ I known about the delay, I would have rescheduled the meeting.', choices: ['If','Had','Were','Should'], answer: 1, note: 'Had I known ~はIf I had known ~のifを省略した倒置形。' },
+      { q: 'I wish I ___ more time to prepare for the presentation.', choices: ['have','had','will have','having'], answer: 1, note: 'I wish + 仮定法過去（had）で、現在の状況への願望・後悔を表す。' },
+      { q: 'He speaks about the merger as if he ___ all the details.', choices: ['knows','knew','has known','will know'], answer: 1, note: 'as if + 仮定法過去（knew）で「まるで知っているかのように」という現在の事実と異なる状況を表す。' },
+      { q: '___ your support, the project would have failed.', choices: ['Without','Unless','Despite','Although'], answer: 0, note: 'without（〜がなければ）は仮定法的な帰結（would have failed）と結びつく。' },
+    ],
+  },
+  {
+    id: 'g_inversion', title: '倒置・強調構文', targetParts: ['P5','P6'],
+    explanation: '否定的な意味を持つ副詞（Never, Rarely, Not only, Little等）やOnly + 副詞句が文頭に来ると、主語と（助）動詞が倒置される。強調構文It is/was ~ thatは、文中の特定の要素を強調する。',
+    quiz: [
+      { q: '___ has the company faced such a significant financial challenge.', choices: ['Never','Ever','Always','Sometimes'], answer: 0, note: '否定的な意味を持つ副詞Neverが文頭に来ると倒置（has the company faced）が起こる。' },
+      { q: 'Not only ___ the deadline, but she also improved the quality of the report.', choices: ['she met','did she meet','she did meet','met she'], answer: 1, note: 'Not onlyが文頭に来ると倒置が起こり、did + 主語 + 原形の形になる。' },
+      { q: 'Only after the audit ___ the extent of the problem.', choices: ['they realized','did they realize','they did realize','realized they'], answer: 1, note: 'Only + 副詞句が文頭に来ると倒置が起こる。' },
+      { q: '___ the manager available to answer questions after the meeting.', choices: ['Rarely is','Rarely','Is rarely','Rarely does'], answer: 0, note: 'Rarelyが文頭に来ると、be動詞の場合はbe動詞 + 主語の順で倒置する。' },
+      { q: 'It was the marketing team ___ proposed the new strategy.', choices: ['who','which','that','whom'], answer: 2, note: '強調構文It is/was ~ thatで特定の要素（the marketing team）を強調する。人でもモノでもthatが使える。' },
+    ],
+  },
+  {
+    id: 'g_collocations', title: '語法・コロケーション', targetParts: ['P5','P6'],
+    explanation: '動詞・形容詞・名詞と前置詞の決まった組み合わせ（コロケーション）を覚える。似た意味の紛らわしい語（affect/effect、raise/rise等）は品詞・用法の違いで使い分ける。',
+    quiz: [
+      { q: 'The success of the project ___ on effective communication among team members.', choices: ['depends','relies','insists','consists'], answer: 0, note: 'depend on（〜次第である）という決まったコロケーション。' },
+      { q: 'The committee ___ of five members from different departments.', choices: ['consists','depends','complies','relies'], answer: 0, note: 'consist of（〜から成る）という決まったコロケーション。' },
+      { q: 'All contractors must ___ with the safety regulations.', choices: ['comply','depend','consist','rely'], answer: 0, note: 'comply with（〜を遵守する）という決まったコロケーション。' },
+      { q: 'The new tax policy will ___ small businesses significantly.', choices: ['affect','effect','raise','rise'], answer: 0, note: 'affect（動詞：〜に影響を与える）とeffect（名詞：影響）の混同に注意。' },
+      { q: 'Prices are expected to ___ again next quarter.', choices: ['raise','rise','raising','risen'], answer: 1, note: 'rise（自動詞：上がる）とraise（他動詞：〜を上げる、目的語が必要）の混同に注意。ここでは目的語が無いのでrise。' },
+      { q: 'The team is heavily ___ on external consultants for this project.', choices: ['depending','relying','consisting','complying'], answer: 1, note: 'rely on（〜に頼る）という決まったコロケーション。' },
+    ],
+  },
 ];
 
 /* ==================== 4. DEFAULT_DATA + save()/load() ==================== */
@@ -839,7 +884,10 @@ function renderDiagnosis(app) {
       ${reportLabel ? `<p class="muted">前回の回答：${reportLabel}</p>` : ''}
       <a class="btn secondary" href="#/p7b/retest">精密診断（無制限リテスト）へ</a>
     </div>
-    <div class="actionbar"><a class="btn" href="#/menu">週次メニューを見る</a></div>
+    <div class="actionbar">
+      <a class="btn" href="#/menu">週次メニューを見る</a>
+      <a class="btn secondary" href="#/input">最初から入力し直す</a>
+    </div>
   `;
 }
 
@@ -874,7 +922,10 @@ function renderMenu(app) {
     <h1>週次メニュー</h1>
     <div class="card">フェーズ: <strong>${menu.phase}</strong>／週合計 ${menu.totalMinutes}分</div>
     ${daysHtml}
-    <div class="actionbar"><button class="btn secondary" data-action="regenerateMenu">メニュー再生成</button></div>
+    <div class="actionbar">
+      <a class="btn" href="#/diagnosis">診断結果に戻る</a>
+      <button class="btn secondary" data-action="regenerateMenu">メニュー再生成</button>
+    </div>
   `;
 }
 
