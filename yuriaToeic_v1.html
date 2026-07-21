@@ -6,12 +6,13 @@
 <title>ゆりあTOEIC v1</title>
 <style>
 :root{
-  --bg:#f5f6fa; --card:#ffffff; --text:#1c1e21; --muted:#6b7280;
+  --bg:#f6f5fb; --card:#ffffff; --text:#232228; --muted:#7a7686;
   --primary:#3b5bfd; --primary-dark:#2a42c9; --danger:#e5484d; --success:#2f9e44;
-  --warning:#c07a00; --radius:14px;
+  --warning:#c07a00; --radius:20px; --accent-warm:#ff9f6b; --accent-warm-dark:#e8804a;
 }
 @media (prefers-color-scheme: dark){
-  :root{ --bg:#15161a; --card:#1f2126; --text:#eef0f2; --muted:#9aa0a6; --primary:#8098ff; --primary-dark:#6b82e6; }
+  :root{ --bg:#17161d; --card:#242230; --text:#f0eef5; --muted:#a29dae; --primary:#8098ff; --primary-dark:#6b82e6;
+    --accent-warm:#ffab7d; --accent-warm-dark:#ff9257; }
 }
 *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 html,body{ margin:0; padding:0; background:var(--bg); color:var(--text);
@@ -21,12 +22,12 @@ h1{ font-size:20px; margin:0 0 12px; }
 h2{ font-size:16px; margin:0 0 10px; }
 p{ line-height:1.7; margin:0 0 8px; }
 a{ color:inherit; }
-.card{ background:var(--card); border-radius:var(--radius); padding:16px; margin-bottom:12px; box-shadow:0 1px 3px rgba(0,0,0,.08); }
+.card{ background:var(--card); border-radius:var(--radius); padding:16px; margin-bottom:12px; box-shadow:0 4px 16px rgba(30,20,60,.06); }
 .field{ margin-bottom:18px; }
 .field:last-child{ margin-bottom:4px; }
 .field label{ display:flex; justify-content:space-between; font-weight:600; margin-bottom:6px; font-size:14px; }
 input[type=range]{ width:100%; height:32px; accent-color:var(--primary); }
-.btn{ display:block; width:100%; min-height:44px; border:none; border-radius:10px; background:var(--primary);
+.btn{ display:block; width:100%; min-height:44px; border:none; border-radius:16px; background:var(--primary);
   color:#fff; font-size:16px; font-weight:700; padding:11px 16px; text-align:center; text-decoration:none;
   cursor:pointer; margin-bottom:8px; }
 .btn:disabled{ opacity:.4; }
@@ -39,7 +40,7 @@ input[type=range]{ width:100%; height:32px; accent-color:var(--primary); }
 .badge.rank{ background:rgba(59,91,253,.15); color:var(--primary); }
 .rank-row{ display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid rgba(128,128,128,.15); gap:12px; }
 .rank-row:last-child{ border-bottom:none; }
-.choice-btn{ display:block; width:100%; text-align:left; min-height:48px; border-radius:10px;
+.choice-btn{ display:block; width:100%; text-align:left; min-height:48px; border-radius:14px;
   border:1px solid rgba(128,128,128,.35); background:var(--card); color:var(--text); padding:12px 14px;
   margin-bottom:8px; font-size:16px; cursor:pointer; }
 .choice-btn.correct{ background:rgba(47,158,68,.15); border-color:var(--success); }
@@ -51,7 +52,7 @@ input[type=range]{ width:100%; height:32px; accent-color:var(--primary); }
 .day-title{ font-weight:700; margin:20px 0 8px; font-size:15px; color:var(--muted); }
 .day-title:first-of-type{ margin-top:0; }
 .muted{ color:var(--muted); font-size:14px; }
-.segmented{ display:flex; border:1px solid var(--primary); border-radius:10px; overflow:hidden; margin-bottom:14px; }
+.segmented{ display:flex; border:1px solid var(--primary); border-radius:14px; overflow:hidden; margin-bottom:14px; }
 .segmented button{ flex:1; padding:10px; border:none; background:transparent; color:var(--primary); font-weight:700; font-size:14px; }
 .segmented button.active{ background:var(--primary); color:#fff; }
 .center{ text-align:center; }
@@ -59,6 +60,33 @@ input[type=range]{ width:100%; height:32px; accent-color:var(--primary); }
 .row-flex .btn{ flex:1; }
 details summary{ cursor:pointer; font-weight:600; font-size:14px; margin:8px 0; }
 details p, details li{ font-size:14px; }
+
+.icon-row{ display:flex; justify-content:flex-end; gap:10px; margin-bottom:6px; }
+.icon-btn{ display:inline-flex; align-items:center; justify-content:center; width:44px; height:44px;
+  border-radius:50%; background:var(--card); box-shadow:0 3px 10px rgba(30,20,60,.10); font-size:20px;
+  text-decoration:none; color:var(--text); }
+.home-title{ text-align:center; font-size:22px; margin:6px 0 2px; }
+.streak-line{ text-align:center; color:var(--accent-warm-dark); font-weight:700; font-size:14px; margin:0 0 14px; }
+.day-nav{ display:flex; align-items:center; justify-content:space-between; margin:0 0 18px; }
+.day-nav-label{ font-size:18px; font-weight:700; text-align:center; flex:1; }
+.day-nav-arrow{ width:44px; height:44px; min-height:44px; flex:none; border-radius:50%; border:none;
+  background:var(--card); box-shadow:0 3px 10px rgba(30,20,60,.10); font-size:16px; color:var(--primary);
+  cursor:pointer; padding:0; margin-bottom:0; }
+.cal-nav{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.cal-dow, .cal-week{ display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+.cal-dow{ margin-bottom:6px; font-size:12px; color:var(--muted); text-align:center; }
+.cal-day{ position:relative; aspect-ratio:1; border:none; border-radius:12px; background:transparent;
+  color:var(--text); font-size:14px; cursor:pointer; }
+.cal-day.studied{ font-weight:700; }
+.cal-day.selected{ background:rgba(59,91,253,.15); }
+.cal-day .cal-dot{ position:absolute; bottom:5px; left:50%; transform:translateX(-50%);
+  width:5px; height:5px; border-radius:50%; background:var(--primary); }
+.cal-day.empty{ pointer-events:none; }
+.celebration-overlay{ position:fixed; inset:0; background:rgba(20,15,35,.45); display:flex;
+  align-items:center; justify-content:center; z-index:10; padding:24px; cursor:pointer; }
+.celebration-card{ background:var(--card); border-radius:var(--radius); padding:32px 24px; text-align:center;
+  max-width:320px; box-shadow:0 12px 32px rgba(0,0,0,.25); }
+.celebration-card .emoji{ font-size:40px; margin:0 0 8px; }
 </style>
 </head>
 <body>
@@ -164,6 +192,7 @@ const CONFIG = {
     vocabQuestionCountPerBlock: 10,
     sundayModule: 'speedPractice',
   },
+  streaks: { milestones: [5, 10, 30] },
 };
 
 /* ==================== 2. BUILTIN_VOCAB (TSL 1,258語 / CC BY-SA 4.0由来・独自日本語訳) ==================== */
@@ -420,6 +449,8 @@ const DEFAULT_DATA = {
   progress: {
     vocab: { wrongCounts: {}, seenCounts: {}, quizHistory: [] },
     grammar: { unitStatus: {} },
+    dailyLog: {},
+    milestoneState: { streakStartDate: null, celebrated: [] },
   },
   meta: { schemaVersion: 1 },
 };
@@ -436,6 +467,8 @@ function mergeWithDefaults(parsed) {
   merged.progress = {
     vocab: Object.assign({}, base.progress.vocab, parsed.progress && parsed.progress.vocab),
     grammar: Object.assign({}, base.progress.grammar, parsed.progress && parsed.progress.grammar),
+    dailyLog: Object.assign({}, base.progress.dailyLog, parsed.progress && parsed.progress.dailyLog),
+    milestoneState: Object.assign({}, base.progress.milestoneState, parsed.progress && parsed.progress.milestoneState),
   };
   merged.history = parsed.history || base.history;
   return merged;
@@ -456,7 +489,10 @@ function save(data) {
 }
 
 let DATA;
-let APP_STATE = { vocabSession: null, flashSession: null, grammarSession: null, diagnosis: null, weeklyMenu: null };
+let APP_STATE = {
+  vocabSession: null, flashSession: null, grammarSession: null, diagnosis: null, weeklyMenu: null,
+  selectedDayIndex: null, calendarYear: null, calendarMonth: null, selectedCalendarDay: null, pendingCelebration: null,
+};
 
 /* ==================== 5. 診断エンジン ==================== */
 function interpolateScoreToAccuracy(score, table) {
@@ -654,6 +690,7 @@ function submitVocabAnswer(choiceIndex) {
   session.results.push({ word: q.word, choiceIndex, isCorrect });
   session.answered = true;
   session.lastChoiceIndex = choiceIndex;
+  recordDailyActivity(DATA, { vocabQuestionsAnswered: 1 });
   save(DATA);
 }
 
@@ -663,6 +700,12 @@ function advanceVocabQuestion() {
   session.answered = false;
   session.lastChoiceIndex = null;
   if (session.index >= session.questions.length) {
+    DATA.progress.vocab.quizHistory.push({ date: getTodayKey(), correct: session.correct, total: session.questions.length });
+    recordDailyActivity(DATA, { vocabQuizzesCompleted: 1 });
+    const streakInfo = calcCurrentStreak(DATA.progress.dailyLog, new Date());
+    const milestone = checkStreakMilestone(DATA, streakInfo, CONFIG);
+    if (milestone) APP_STATE.pendingCelebration = milestone;
+    save(DATA);
     location.hash = '#/vocab/result';
   } else {
     render();
@@ -709,6 +752,10 @@ function finishGrammarQuiz() {
     attempts: prev.attempts + 1,
     lastScore: score,
   };
+  recordDailyActivity(DATA, { grammarQuestionsAnswered: session.total, grammarUnitsCompleted: [session.unitId] });
+  const streakInfo = calcCurrentStreak(DATA.progress.dailyLog, new Date());
+  const milestone = checkStreakMilestone(DATA, streakInfo, CONFIG);
+  if (milestone) APP_STATE.pendingCelebration = milestone;
   save(DATA);
 }
 
@@ -740,6 +787,109 @@ function submitP7bPrecisionResult(retestAccuracy) {
   save(DATA);
 }
 
+/* ==================== 9.5 デイリーログ／ストリーク／カレンダー／統計 ==================== */
+function formatLocalDateKey(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+function getTodayKey(now) { return formatLocalDateKey(now || new Date()); }
+// JSのDate#getDay()は日曜=0..土曜=6。dayLabelsの並び(月=0..日=6)に変換する。
+function jsDayToAppIndex(jsDay) { return (jsDay + 6) % 7; }
+
+function recordDailyActivity(data, patch, dateKey) {
+  const key = dateKey || getTodayKey();
+  const log = data.progress.dailyLog;
+  const entry = log[key] || { vocabQuestionsAnswered: 0, vocabQuizzesCompleted: 0, grammarQuestionsAnswered: 0, grammarUnitsCompleted: [] };
+  if (patch.vocabQuestionsAnswered) entry.vocabQuestionsAnswered += patch.vocabQuestionsAnswered;
+  if (patch.vocabQuizzesCompleted) entry.vocabQuizzesCompleted += patch.vocabQuizzesCompleted;
+  if (patch.grammarQuestionsAnswered) entry.grammarQuestionsAnswered += patch.grammarQuestionsAnswered;
+  if (patch.grammarUnitsCompleted) {
+    patch.grammarUnitsCompleted.forEach((id) => { if (!entry.grammarUnitsCompleted.includes(id)) entry.grammarUnitsCompleted.push(id); });
+  }
+  log[key] = entry;
+  return entry;
+}
+
+// 純粋関数：dailyLogと基準日(today)を引数で受け取り、内部ではnew Date()を呼ばない(テストしやすくするため)。
+function calcCurrentStreak(dailyLog, today) {
+  const now = today || new Date();
+  const cursor = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const todayKey = formatLocalDateKey(cursor);
+  // 今日がまだ未記録でも「昨日までの記録」を有効なストリークとして扱う(今日やる前に途切れて見えないように)。
+  if (!dailyLog[todayKey]) cursor.setDate(cursor.getDate() - 1);
+  if (!dailyLog[formatLocalDateKey(cursor)]) return { length: 0, startDate: null, endDate: null };
+  const endDate = formatLocalDateKey(cursor);
+  let length = 0;
+  let startDate = endDate;
+  while (dailyLog[formatLocalDateKey(cursor)]) {
+    length++;
+    startDate = formatLocalDateKey(cursor);
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  return { length, startDate, endDate };
+}
+
+// data.progress.milestoneStateを更新し、新たに到達したマイルストーン日数があれば返す(無ければnull)。
+function checkStreakMilestone(data, streakInfo, config) {
+  const state = data.progress.milestoneState;
+  if (state.streakStartDate !== streakInfo.startDate) {
+    state.streakStartDate = streakInfo.startDate;
+    state.celebrated = [];
+  }
+  const hit = config.streaks.milestones
+    .filter((m) => streakInfo.length >= m && !state.celebrated.includes(m))
+    .sort((a, b) => b - a)[0];
+  if (hit != null) {
+    state.celebrated.push(hit);
+    return hit;
+  }
+  return null;
+}
+
+function shiftMonth(year, month, delta) {
+  const d = new Date(year, month + delta, 1);
+  return { year: d.getFullYear(), month: d.getMonth() };
+}
+
+// 純粋関数。month は 0-11 (JSの慣例)。月曜始まりでdayLabelsと揃える。
+function buildCalendarMonthGrid(year, month, dailyLog) {
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const leadingBlanks = jsDayToAppIndex(new Date(year, month, 1).getDay());
+  const cells = [];
+  for (let i = 0; i < leadingBlanks; i++) cells.push(null);
+  for (let day = 1; day <= daysInMonth; day++) {
+    const key = formatLocalDateKey(new Date(year, month, day));
+    cells.push({ day, dateKey: key, studied: !!dailyLog[key] });
+  }
+  while (cells.length % 7 !== 0) cells.push(null);
+  return { year, month, cells };
+}
+
+function computeVocabStats(progress, allWords) {
+  const seenEntries = Object.entries(progress.seenCounts).filter(([, c]) => c > 0);
+  return {
+    totalWords: allWords.length,
+    totalDistinctSeen: seenEntries.length,
+    firstExposure: seenEntries.filter(([, c]) => c === 1).length,
+    secondPlusExposure: seenEntries.filter(([, c]) => c >= 2).length,
+    wrongWordsCount: Object.values(progress.wrongCounts).filter((c) => c > 0).length,
+    quizSessionsCompleted: progress.quizHistory.length,
+  };
+}
+
+function computeGrammarStats(progress, units) {
+  const statuses = units.map((u) => progress.unitStatus[u.id]);
+  const completed = statuses.filter((s) => s && s.completed);
+  return {
+    totalUnits: units.length,
+    completedCount: completed.length,
+    totalAttempts: statuses.reduce((sum, s) => sum + (s ? s.attempts : 0), 0),
+    avgBestScore: completed.length ? completed.reduce((sum, s) => sum + s.bestScore, 0) / completed.length : null,
+  };
+}
+
 /* ==================== 10. ルーター ==================== */
 function parseRoute(hash) {
   const path = (hash || '#/input').slice(1);
@@ -751,17 +901,22 @@ function render() {
   const segments = parseRoute(location.hash);
   const [root, a, b] = segments;
   const app = document.getElementById('app');
-  if (!root || root === 'input') return renderInput(app);
+  if (!root) return DATA.history.length > 0 ? renderHome(app) : renderInput(app);
+  if (root === 'input') return renderInput(app);
+  if (root === 'home') return renderHome(app);
+  if (root === 'calendar') return renderCalendar(app);
   if (root === 'diagnosis') return renderDiagnosis(app);
   if (root === 'menu') return renderMenu(app);
   if (root === 'grammar') {
     if (!a) return renderGrammarList(app);
+    if (a === 'stats') return renderGrammarStats(app);
     if (a && !b) return renderGrammarUnit(app, a);
     if (b === 'quiz') return renderGrammarQuiz(app, a);
     if (b === 'result') return renderGrammarResult(app, a);
   }
   if (root === 'vocab') {
     if (!a) return renderVocabHome(app);
+    if (a === 'stats') return renderVocabStats(app);
     if (a === 'flashcards') return renderVocabFlashcards(app);
     if (a === 'quiz') return renderVocabQuiz(app);
     if (a === 'result') return renderVocabResult(app);
@@ -885,10 +1040,29 @@ function renderDiagnosis(app) {
       <a class="btn secondary" href="#/p7b/retest">精密診断（無制限リテスト）へ</a>
     </div>
     <div class="actionbar">
-      <a class="btn" href="#/menu">週次メニューを見る</a>
+      <a class="btn" href="#/home">今日から始める</a>
       <a class="btn secondary" href="#/input">最初から入力し直す</a>
     </div>
   `;
+}
+
+function renderDayBlocksHtml(blocks) {
+  return blocks.map((b) => {
+    const actionHtml = b.route ? `<a class="btn small secondary" href="${b.route}">開く</a>` : '';
+    const methodHtml = b.method ? `
+      <details><summary>方法を見る</summary>
+        <p>${b.method.title}</p>
+        <ul>${b.method.steps.map((s) => `<li>${s}</li>`).join('')}</ul>
+        <p class="muted">${b.method.tip}</p>
+      </details>` : '';
+    return `
+      <div class="card" style="margin-bottom:8px;">
+        <div><strong>${b.label}</strong>${b.subLabel ? ` — ${b.subLabel}` : ''}</div>
+        <div class="muted">${b.minutes}分・KPI: ${b.kpi}</div>
+        ${methodHtml}
+        ${actionHtml}
+      </div>`;
+  }).join('');
 }
 
 function renderMenu(app) {
@@ -898,34 +1072,98 @@ function renderMenu(app) {
   }
   const menu = APP_STATE.weeklyMenu;
 
-  const daysHtml = menu.days.map((d) => {
-    const blocksHtml = d.blocks.map((b) => {
-      const actionHtml = b.route ? `<a class="btn small secondary" href="${b.route}">開く</a>` : '';
-      const methodHtml = b.method ? `
-        <details><summary>方法を見る</summary>
-          <p>${b.method.title}</p>
-          <ul>${b.method.steps.map((s) => `<li>${s}</li>`).join('')}</ul>
-          <p class="muted">${b.method.tip}</p>
-        </details>` : '';
-      return `
-        <div class="card" style="margin-bottom:8px;">
-          <div><strong>${b.label}</strong>${b.subLabel ? ` — ${b.subLabel}` : ''}</div>
-          <div class="muted">${b.minutes}分・KPI: ${b.kpi}</div>
-          ${methodHtml}
-          ${actionHtml}
-        </div>`;
-    }).join('');
-    return `<div class="day-title">${d.day}</div>${blocksHtml}`;
-  }).join('');
+  const daysHtml = menu.days.map((d) => `<div class="day-title">${d.day}</div>${renderDayBlocksHtml(d.blocks)}`).join('');
 
   app.innerHTML = `
     <h1>週次メニュー</h1>
     <div class="card">フェーズ: <strong>${menu.phase}</strong>／週合計 ${menu.totalMinutes}分</div>
     ${daysHtml}
     <div class="actionbar">
-      <a class="btn" href="#/diagnosis">診断結果に戻る</a>
+      <a class="btn" href="#/home">今日の画面に戻る</a>
+      <a class="btn secondary" href="#/diagnosis">診断結果に戻る</a>
       <button class="btn secondary" data-action="regenerateMenu">メニュー再生成</button>
     </div>
+  `;
+}
+
+function renderHome(app) {
+  const diagnosis = APP_STATE.diagnosis || runDiagnosis(DATA.user, CONFIG);
+  APP_STATE.diagnosis = diagnosis;
+  if (!APP_STATE.weeklyMenu) {
+    APP_STATE.weeklyMenu = generateWeeklyMenu(DATA.user, CONFIG, diagnosis, DATA);
+  }
+  const menu = APP_STATE.weeklyMenu;
+
+  const now = new Date();
+  const todayAppIndex = jsDayToAppIndex(now.getDay());
+  if (APP_STATE.selectedDayIndex == null) APP_STATE.selectedDayIndex = todayAppIndex;
+  const idx = ((APP_STATE.selectedDayIndex % 7) + 7) % 7;
+  const day = menu.days[idx];
+
+  const streak = calcCurrentStreak(DATA.progress.dailyLog, now);
+  const celebration = APP_STATE.pendingCelebration;
+  APP_STATE.pendingCelebration = null;
+
+  app.innerHTML = `
+    <div class="icon-row">
+      <a class="icon-btn" href="#/menu" aria-label="週間メニュー">☰</a>
+      <a class="icon-btn" href="#/calendar" aria-label="カレンダー">📅</a>
+    </div>
+    <h1 class="home-title">${DATA.user.name}さんの今日</h1>
+    ${streak.length > 0 ? `<p class="streak-line">🔥 ${streak.length}日連続</p>` : ''}
+    <div class="day-nav">
+      <button class="day-nav-arrow" data-action="shiftHomeDay" data-delta="-1" aria-label="前の日">◀</button>
+      <span class="day-nav-label">${day.day}曜日${idx === todayAppIndex ? '（今日）' : ''}</span>
+      <button class="day-nav-arrow" data-action="shiftHomeDay" data-delta="1" aria-label="次の日">▶</button>
+    </div>
+    ${renderDayBlocksHtml(day.blocks)}
+    ${celebration ? `
+      <div class="celebration-overlay" data-action="dismissCelebration">
+        <div class="celebration-card">
+          <p class="emoji">🎉</p>
+          <p><strong>${celebration}日連続達成！</strong></p>
+          <p class="muted">この調子でがんばりましょう</p>
+        </div>
+      </div>` : ''}
+  `;
+}
+
+function renderCalendar(app) {
+  const now = new Date();
+  if (APP_STATE.calendarYear == null) {
+    APP_STATE.calendarYear = now.getFullYear();
+    APP_STATE.calendarMonth = now.getMonth();
+  }
+  const grid = buildCalendarMonthGrid(APP_STATE.calendarYear, APP_STATE.calendarMonth, DATA.progress.dailyLog);
+  const streak = calcCurrentStreak(DATA.progress.dailyLog, now);
+  const selectedKey = APP_STATE.selectedCalendarDay;
+  const detail = selectedKey ? DATA.progress.dailyLog[selectedKey] : null;
+
+  const weeks = [];
+  for (let i = 0; i < grid.cells.length; i += 7) weeks.push(grid.cells.slice(i, i + 7));
+  const gridHtml = weeks.map((week) => `<div class="cal-week">${week.map((c) => c
+    ? `<button class="cal-day ${c.studied ? 'studied' : ''} ${c.dateKey === selectedKey ? 'selected' : ''}" data-action="selectCalendarDay" data-date="${c.dateKey}">${c.day}${c.studied ? '<span class="cal-dot"></span>' : ''}</button>`
+    : `<span class="cal-day empty"></span>`).join('')}</div>`).join('');
+
+  app.innerHTML = `
+    <h1 class="home-title">カレンダー</h1>
+    ${streak.length > 0 ? `<p class="streak-line">🔥 現在${streak.length}日連続</p>` : '<p class="center muted">まだ連続記録はありません</p>'}
+    <div class="card">
+      <div class="cal-nav">
+        <button class="btn small secondary" data-action="shiftCalendarMonth" data-delta="-1">◀</button>
+        <strong>${APP_STATE.calendarYear}年${APP_STATE.calendarMonth + 1}月</strong>
+        <button class="btn small secondary" data-action="shiftCalendarMonth" data-delta="1">▶</button>
+      </div>
+      <div class="cal-dow">${CONFIG.menuRules.dayLabels.map((l) => `<span>${l}</span>`).join('')}</div>
+      ${gridHtml}
+    </div>
+    ${detail ? `
+      <div class="card">
+        <h2>${selectedKey}の記録</h2>
+        <p>語彙: ${detail.vocabQuestionsAnswered}問（クイズ${detail.vocabQuizzesCompleted}回）</p>
+        <p>文法: ${detail.grammarQuestionsAnswered}問（完了ユニット${detail.grammarUnitsCompleted.length}）</p>
+      </div>` : (selectedKey ? `<div class="card"><p class="muted">この日は記録がありません</p></div>` : '')}
+    <div class="actionbar"><a class="btn secondary" href="#/home">ホームに戻る</a></div>
   `;
 }
 
@@ -940,7 +1178,20 @@ function renderGrammarList(app) {
         <strong>${u.title}</strong><br>${statusHtml}
       </a>`;
   }).join('');
-  app.innerHTML = `<h1>文法ユニット</h1>${itemsHtml}<div class="actionbar"><a class="btn secondary" href="#/menu">メニューに戻る</a></div>`;
+  app.innerHTML = `<h1>文法ユニット</h1>${itemsHtml}<div class="actionbar"><a class="btn secondary" href="#/grammar/stats">統計を見る</a><a class="btn secondary" href="#/menu">メニューに戻る</a></div>`;
+}
+
+function renderGrammarStats(app) {
+  const stats = computeGrammarStats(DATA.progress.grammar, GRAMMAR_UNITS);
+  app.innerHTML = `
+    <h1>文法の統計</h1>
+    <div class="card">
+      <div class="rank-row"><span>完了ユニット数</span><strong>${stats.completedCount} / ${stats.totalUnits}</strong></div>
+      <div class="rank-row"><span>総挑戦回数</span><strong>${stats.totalAttempts}</strong></div>
+      <div class="rank-row"><span>平均ベストスコア</span><strong>${stats.avgBestScore != null ? Math.round(stats.avgBestScore * 100) + '%' : '—'}</strong></div>
+    </div>
+    <div class="actionbar"><a class="btn secondary" href="#/grammar">ユニット一覧に戻る</a></div>
+  `;
 }
 
 function renderGrammarUnit(app, unitId) {
@@ -1005,7 +1256,26 @@ function renderVocabHome(app) {
     </div>
     <button class="btn" data-action="startVocabFlashcards">フラッシュカード</button>
     <button class="btn secondary" data-action="startVocabQuiz">10問クイズ</button>
-    <div class="actionbar"><a class="btn secondary" href="#/menu">メニューに戻る</a></div>
+    <div class="actionbar">
+      <a class="btn secondary" href="#/vocab/stats">統計を見る</a>
+      <a class="btn secondary" href="#/menu">メニューに戻る</a>
+    </div>
+  `;
+}
+
+function renderVocabStats(app) {
+  const stats = computeVocabStats(DATA.progress.vocab, BUILTIN_VOCAB);
+  app.innerHTML = `
+    <h1>語彙の統計</h1>
+    <div class="card">
+      <div class="rank-row"><span>総語数</span><strong>${stats.totalWords}</strong></div>
+      <div class="rank-row"><span>学習済み語数</span><strong>${stats.totalDistinctSeen}</strong></div>
+      <div class="rank-row"><span>1回目学習中</span><strong>${stats.firstExposure}</strong></div>
+      <div class="rank-row"><span>2回目以降学習中</span><strong>${stats.secondPlusExposure}</strong></div>
+      <div class="rank-row"><span>苦手語数</span><strong>${stats.wrongWordsCount}</strong></div>
+      <div class="rank-row"><span>クイズ実施回数</span><strong>${stats.quizSessionsCompleted}</strong></div>
+    </div>
+    <div class="actionbar"><a class="btn secondary" href="#/vocab">語彙メニューに戻る</a></div>
   `;
 }
 
@@ -1135,6 +1405,23 @@ const ACTIONS = {
     submitP7bPrecisionResult(val);
     location.hash = '#/p7b/result';
   },
+  shiftHomeDay: (d) => {
+    const cur = APP_STATE.selectedDayIndex ?? jsDayToAppIndex(new Date().getDay());
+    APP_STATE.selectedDayIndex = ((cur + Number(d.delta)) % 7 + 7) % 7;
+    render();
+  },
+  dismissCelebration: () => { render(); },
+  shiftCalendarMonth: (d) => {
+    const s = shiftMonth(APP_STATE.calendarYear, APP_STATE.calendarMonth, Number(d.delta));
+    APP_STATE.calendarYear = s.year;
+    APP_STATE.calendarMonth = s.month;
+    APP_STATE.selectedCalendarDay = null;
+    render();
+  },
+  selectCalendarDay: (d) => {
+    APP_STATE.selectedCalendarDay = APP_STATE.selectedCalendarDay === d.date ? null : d.date;
+    render();
+  },
 };
 
 if (typeof window !== 'undefined') {
@@ -1146,7 +1433,7 @@ if (typeof window !== 'undefined') {
       const handler = ACTIONS[el.dataset.action];
       if (handler) handler(el.dataset, e);
     });
-    if (!location.hash) location.hash = '#/input';
+    if (!location.hash) location.hash = DATA.history.length > 0 ? '#/home' : '#/input';
     render();
     window.addEventListener('hashchange', render);
   });
