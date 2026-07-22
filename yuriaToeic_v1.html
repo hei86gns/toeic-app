@@ -18,65 +18,65 @@
 html,body{ margin:0; padding:0; background:var(--bg); color:var(--text);
   font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif; font-size:16px; }
 #app{ max-width:480px; margin:0 auto; padding:20px 16px 24px; min-height:100vh; }
-h1{ font-size:20px; margin:0 0 12px; }
-h2{ font-size:16px; margin:0 0 10px; }
+h1{ font-size:1.25rem; margin:0 0 12px; }
+h2{ font-size:1rem; margin:0 0 10px; }
 p{ line-height:1.7; margin:0 0 8px; }
 a{ color:inherit; }
 .card{ background:var(--card); border-radius:var(--radius); padding:16px; margin-bottom:12px; box-shadow:0 4px 16px rgba(30,20,60,.06); }
 .field{ margin-bottom:18px; }
 .field:last-child{ margin-bottom:4px; }
-.field label{ display:flex; justify-content:space-between; font-weight:600; margin-bottom:6px; font-size:14px; }
+.field label{ display:flex; justify-content:space-between; font-weight:600; margin-bottom:6px; font-size:0.875rem; }
 input[type=range]{ width:100%; height:32px; accent-color:var(--primary); }
 .btn{ display:block; width:100%; min-height:44px; border:none; border-radius:16px; background:var(--primary);
-  color:#fff; font-size:16px; font-weight:700; padding:11px 16px; text-align:center; text-decoration:none;
+  color:#fff; font-size:1rem; font-weight:700; padding:11px 16px; text-align:center; text-decoration:none;
   cursor:pointer; margin-bottom:8px; }
 .btn:disabled{ opacity:.4; }
 .btn.secondary{ background:transparent; color:var(--primary); border:1px solid var(--primary); }
-.btn.small{ min-height:36px; font-size:14px; width:auto; display:inline-block; padding:8px 14px; }
+.btn.small{ min-height:36px; font-size:0.875rem; width:auto; display:inline-block; padding:8px 14px; }
 .actionbar{ position:sticky; bottom:0; left:0; right:0; background:var(--bg); padding:12px 0 0;
   margin-top:8px; box-shadow:0 -6px 10px -6px rgba(0,0,0,.15); }
-.badge{ display:inline-block; padding:3px 10px; border-radius:999px; font-size:12px; font-weight:700; margin:0 6px 6px 0; }
+.badge{ display:inline-block; padding:3px 10px; border-radius:999px; font-size:0.75rem; font-weight:700; margin:0 6px 6px 0; }
 .badge.warn{ background:rgba(192,122,0,.15); color:var(--warning); }
 .badge.rank{ background:rgba(59,91,253,.15); color:var(--primary); }
 .rank-row{ display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid rgba(128,128,128,.15); gap:12px; }
 .rank-row:last-child{ border-bottom:none; }
 .choice-btn{ display:block; width:100%; text-align:left; min-height:48px; border-radius:14px;
   border:1px solid rgba(128,128,128,.35); background:var(--card); color:var(--text); padding:12px 14px;
-  margin-bottom:8px; font-size:16px; cursor:pointer; }
+  margin-bottom:8px; font-size:1rem; cursor:pointer; }
 .choice-btn.correct{ background:rgba(47,158,68,.15); border-color:var(--success); }
 .choice-btn.incorrect{ background:rgba(229,72,77,.15); border-color:var(--danger); }
 .progress{ height:6px; background:rgba(128,128,128,.2); border-radius:3px; overflow:hidden; margin-bottom:16px; }
 .progress-fill{ height:100%; background:var(--primary); }
 .flashcard{ min-height:180px; display:flex; align-items:center; justify-content:center; text-align:center;
-  font-size:24px; font-weight:600; padding:24px; cursor:pointer; }
-.day-title{ font-weight:700; margin:20px 0 8px; font-size:15px; color:var(--muted); }
+  font-size:1.5rem; font-weight:600; padding:24px; cursor:pointer; }
+.day-title{ font-weight:700; margin:20px 0 8px; font-size:0.9375rem; color:var(--muted); }
 .day-title:first-of-type{ margin-top:0; }
-.muted{ color:var(--muted); font-size:14px; }
+.muted{ color:var(--muted); font-size:0.875rem; }
 .segmented{ display:flex; border:1px solid var(--primary); border-radius:14px; overflow:hidden; margin-bottom:14px; }
-.segmented button{ flex:1; padding:10px; border:none; background:transparent; color:var(--primary); font-weight:700; font-size:14px; }
+.segmented button{ flex:1; padding:10px; border:none; background:transparent; color:var(--primary); font-weight:700; font-size:0.875rem; }
 .segmented button.active{ background:var(--primary); color:#fff; }
 .center{ text-align:center; }
 .row-flex{ display:flex; gap:8px; }
 .row-flex .btn{ flex:1; }
-details summary{ cursor:pointer; font-weight:600; font-size:14px; margin:8px 0; }
-details p, details li{ font-size:14px; }
+details summary{ cursor:pointer; font-weight:600; font-size:0.875rem; margin:8px 0; }
+details p, details li{ font-size:0.875rem; }
 
 .icon-row{ display:flex; justify-content:flex-end; gap:10px; margin-bottom:6px; }
 .icon-btn{ display:inline-flex; align-items:center; justify-content:center; width:44px; height:44px;
-  border-radius:50%; background:var(--card); box-shadow:0 3px 10px rgba(30,20,60,.10); font-size:20px;
+  border-radius:50%; background:var(--card); box-shadow:0 3px 10px rgba(30,20,60,.10); font-size:1.25rem;
   text-decoration:none; color:var(--text); }
-.home-title{ text-align:center; font-size:22px; margin:6px 0 2px; }
-.streak-line{ text-align:center; color:var(--accent-warm-dark); font-weight:700; font-size:14px; margin:0 0 14px; }
+.home-title{ text-align:center; font-size:1.375rem; margin:6px 0 2px; }
+.streak-line{ text-align:center; color:var(--accent-warm-dark); font-weight:700; font-size:0.875rem; margin:0 0 14px; }
 .day-nav{ display:flex; align-items:center; justify-content:space-between; margin:0 0 18px; }
-.day-nav-label{ font-size:18px; font-weight:700; text-align:center; flex:1; }
+.day-nav-label{ font-size:1.125rem; font-weight:700; text-align:center; flex:1; }
 .day-nav-arrow{ width:44px; height:44px; min-height:44px; flex:none; border-radius:50%; border:none;
-  background:var(--card); box-shadow:0 3px 10px rgba(30,20,60,.10); font-size:16px; color:var(--primary);
+  background:var(--card); box-shadow:0 3px 10px rgba(30,20,60,.10); font-size:1rem; color:var(--primary);
   cursor:pointer; padding:0; margin-bottom:0; }
 .cal-nav{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
 .cal-dow, .cal-week{ display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
-.cal-dow{ margin-bottom:6px; font-size:12px; color:var(--muted); text-align:center; }
+.cal-dow{ margin-bottom:6px; font-size:0.75rem; color:var(--muted); text-align:center; }
 .cal-day{ position:relative; aspect-ratio:1; border:none; border-radius:12px; background:transparent;
-  color:var(--text); font-size:14px; cursor:pointer; }
+  color:var(--text); font-size:0.875rem; cursor:pointer; }
 .cal-day.studied{ font-weight:700; }
 .cal-day.selected{ background:rgba(59,91,253,.15); }
 .cal-day .cal-dot{ position:absolute; bottom:5px; left:50%; transform:translateX(-50%);
@@ -86,7 +86,13 @@ details p, details li{ font-size:14px; }
   align-items:center; justify-content:center; z-index:10; padding:24px; cursor:pointer; }
 .celebration-card{ background:var(--card); border-radius:var(--radius); padding:32px 24px; text-align:center;
   max-width:320px; box-shadow:0 12px 32px rgba(0,0,0,.25); }
-.celebration-card .emoji{ font-size:40px; margin:0 0 8px; }
+.celebration-card .emoji{ font-size:2.5rem; margin:0 0 8px; }
+.explanation-list{ margin:0; padding-left:20px; }
+.explanation-list li{ margin-bottom:14px; line-height:1.8; }
+.explanation-list li:last-child{ margin-bottom:0; }
+.explanation-list li strong{ color:var(--primary); }
+.quit-link{ background:none; border:none; color:var(--muted); font-size:0.875rem; text-decoration:underline;
+  cursor:pointer; padding:8px; }
 </style>
 </head>
 <body>
@@ -193,6 +199,20 @@ const CONFIG = {
     sundayModule: 'speedPractice',
   },
   streaks: { milestones: [5, 10, 30] },
+  selfDiagnosisLevels: [
+    { key: 'native', label: 'ネイティブレベル', score: 950 },
+    { key: 'business', label: 'ビジネスレベル', score: 730 },
+    { key: 'daily', label: '日常会話レベル', score: 550 },
+    { key: 'basic', label: '初歩的な会話レベル', score: 450 },
+    { key: 'hardly', label: 'ほとんど話せない', score: 300 },
+  ],
+  eikenLevels: ['持っていない', '5級', '4級', '3級', '準2級', '2級', '準1級', '1級'],
+  fontScales: [
+    { key: 'small', label: '小', rootPx: 14 },
+    { key: 'medium', label: '標準', rootPx: 16 },
+    { key: 'large', label: '大', rootPx: 19 },
+    { key: 'xlarge', label: '特大', rootPx: 22 },
+  ],
 };
 
 /* ==================== 2. BUILTIN_VOCAB (TSL 1,258語 / CC BY-SA 4.0由来・独自日本語訳) ==================== */
@@ -444,6 +464,8 @@ const DEFAULT_DATA = {
     flags: { p7bTimeSuspect: false, foundationGate: false },
     p7bSelfReport: null,
     p7bPrecisionResult: null,
+    hasTakenToeic: null,
+    beginnerProfile: { eikenLevel: '持っていない', experienceNote: '', selfLevel: null },
   },
   history: [],
   progress: {
@@ -452,6 +474,7 @@ const DEFAULT_DATA = {
     dailyLog: {},
     milestoneState: { streakStartDate: null, celebrated: [] },
   },
+  settings: { fontScale: 'medium' },
   meta: { schemaVersion: 1 },
 };
 
@@ -897,14 +920,21 @@ function parseRoute(hash) {
   return pathname.split('/').filter(Boolean);
 }
 
+function renderInputRoute(app) {
+  if (DATA.user.hasTakenToeic == null) return renderExperienceGate(app);
+  if (DATA.user.hasTakenToeic === false) return renderBeginnerProfile(app);
+  return renderInputForm(app);
+}
+
 function render() {
   const segments = parseRoute(location.hash);
   const [root, a, b] = segments;
   const app = document.getElementById('app');
-  if (!root) return DATA.history.length > 0 ? renderHome(app) : renderInput(app);
-  if (root === 'input') return renderInput(app);
+  if (!root) return DATA.history.length > 0 ? renderHome(app) : renderInputRoute(app);
+  if (root === 'input') return renderInputRoute(app);
   if (root === 'home') return renderHome(app);
   if (root === 'calendar') return renderCalendar(app);
+  if (root === 'settings') return renderSettings(app);
   if (root === 'diagnosis') return renderDiagnosis(app);
   if (root === 'menu') return renderMenu(app);
   if (root === 'grammar') {
@@ -925,7 +955,7 @@ function render() {
     if (a === 'retest') return renderP7bRetest(app);
     if (a === 'result') return renderP7bResult(app);
   }
-  return renderInput(app);
+  return renderInputRoute(app);
 }
 
 /* ==================== 11. 表示ヘルパー ==================== */
@@ -942,7 +972,50 @@ function captureInputForm() {
 }
 
 /* ==================== 12. 画面描画 ==================== */
-function renderInput(app) {
+function renderExperienceGate(app) {
+  app.innerHTML = `
+    <h1 class="home-title">はじめに</h1>
+    <div class="card">
+      <p>TOEICを受けたことはありますか？</p>
+    </div>
+    <button class="btn" data-action="setHasTakenToeic" data-value="yes">はい、受けたことがある</button>
+    <button class="btn secondary" data-action="setHasTakenToeic" data-value="no">いいえ、初めて</button>
+  `;
+}
+
+function renderBeginnerProfile(app) {
+  const p = DATA.user.beginnerProfile;
+  const eikenOptionsHtml = CONFIG.eikenLevels.map((lv) =>
+    `<option value="${lv}" ${p.eikenLevel === lv ? 'selected' : ''}>${lv}</option>`).join('');
+  const levelButtonsHtml = CONFIG.selfDiagnosisLevels.map((lv) =>
+    `<button class="btn ${p.selfLevel === lv.key ? '' : 'secondary'}" data-action="setSelfLevel" data-key="${lv.key}">${lv.label}</button>`).join('');
+
+  app.innerHTML = `
+    <h1 class="home-title">英語の経験を教えてください</h1>
+    <p class="muted center">TOEICの詳しい結果が分からなくても大丈夫です。だいたいの感覚で選んでください。</p>
+    <div class="card">
+      <h2>今の英語力に一番近いのは？</h2>
+      ${levelButtonsHtml}
+    </div>
+    <div class="card">
+      <div class="field">
+        <label>英検をお持ちですか？（参考情報・任意）</label>
+        <select id="eiken-select" class="btn secondary" style="text-align:center;">${eikenOptionsHtml}</select>
+      </div>
+      <div class="field">
+        <label>英語の学習経験など（任意）</label>
+        <input type="text" id="experience-note" value="${p.experienceNote || ''}" placeholder="例：留学経験あり、独学で勉強中 など"
+          style="width:100%; min-height:44px; border-radius:12px; border:1px solid rgba(128,128,128,.35); padding:0 12px; font-size:1rem; background:var(--card); color:var(--text);">
+      </div>
+    </div>
+    <div class="actionbar">
+      <button class="btn" data-action="submitBeginnerProfile" ${p.selfLevel ? '' : 'disabled'}>この情報で診断する</button>
+      <button class="btn secondary" data-action="resetExperienceGate">戻る</button>
+    </div>
+  `;
+}
+
+function renderInputForm(app) {
   const u = DATA.user;
   const partsHtml = CONFIG.partOrder.map((pk) => {
     const cfg = CONFIG.parts[pk];
@@ -982,7 +1055,10 @@ function renderInput(app) {
         <input type="range" min="60" max="600" step="10" value="${u.timeBudgetMin}" id="time-budget-range">
       </div>
     </div>
-    <div class="actionbar"><button class="btn" data-action="submitInput">診断する</button></div>
+    <div class="actionbar">
+      <button class="btn" data-action="submitInput">診断する</button>
+      <button class="btn secondary" data-action="resetExperienceGate">TOEICを受けたことがない場合はこちら</button>
+    </div>
   `;
 
   app.querySelectorAll('.part-range').forEach((el) => {
@@ -1106,6 +1182,7 @@ function renderHome(app) {
 
   app.innerHTML = `
     <div class="icon-row">
+      <a class="icon-btn" href="#/settings" aria-label="設定">⚙️</a>
       <a class="icon-btn" href="#/menu" aria-label="週間メニュー">☰</a>
       <a class="icon-btn" href="#/calendar" aria-label="カレンダー">📅</a>
     </div>
@@ -1115,6 +1192,10 @@ function renderHome(app) {
       <button class="day-nav-arrow" data-action="shiftHomeDay" data-delta="-1" aria-label="前の日">◀</button>
       <span class="day-nav-label">${day.day}曜日${idx === todayAppIndex ? '（今日）' : ''}</span>
       <button class="day-nav-arrow" data-action="shiftHomeDay" data-delta="1" aria-label="次の日">▶</button>
+    </div>
+    <div class="row-flex" style="margin-bottom:14px;">
+      <a class="btn secondary" href="#/vocab">語彙をやる</a>
+      <a class="btn secondary" href="#/grammar">文法をやる</a>
     </div>
     ${renderDayBlocksHtml(day.blocks)}
     ${celebration ? `
@@ -1167,6 +1248,26 @@ function renderCalendar(app) {
   `;
 }
 
+function applyFontScale(scaleKey) {
+  const def = CONFIG.fontScales.find((s) => s.key === scaleKey) || CONFIG.fontScales.find((s) => s.key === 'medium');
+  document.documentElement.style.fontSize = def.rootPx + 'px';
+}
+
+function renderSettings(app) {
+  const current = DATA.settings.fontScale;
+  const buttonsHtml = CONFIG.fontScales.map((s) =>
+    `<button class="btn ${s.key === current ? '' : 'secondary'}" data-action="setFontScale" data-key="${s.key}">${s.label}</button>`).join('');
+  app.innerHTML = `
+    <h1 class="home-title">設定</h1>
+    <div class="card">
+      <h2>文字の大きさ</h2>
+      <p class="muted">これくらいの大きさで表示されます。</p>
+      ${buttonsHtml}
+    </div>
+    <div class="actionbar"><a class="btn secondary" href="#/home">ホームに戻る</a></div>
+  `;
+}
+
 function renderGrammarList(app) {
   const itemsHtml = GRAMMAR_UNITS.map((u) => {
     const status = DATA.progress.grammar.unitStatus[u.id];
@@ -1194,11 +1295,18 @@ function renderGrammarStats(app) {
   `;
 }
 
+function formatExplanationPoints(text) {
+  return text.split('。').map((s) => s.trim()).filter(Boolean).map((s) => `<li>${s}。</li>`).join('');
+}
+
 function renderGrammarUnit(app, unitId) {
   const unit = GRAMMAR_UNITS.find((u) => u.id === unitId);
   app.innerHTML = `
     <h1>${unit.title}</h1>
-    <div class="card"><p>${unit.explanation}</p></div>
+    <div class="card">
+      <h2>📖 ポイント</h2>
+      <ul class="explanation-list">${formatExplanationPoints(unit.explanation)}</ul>
+    </div>
     <div class="actionbar"><button class="btn" data-action="startGrammarQuiz" data-unit-id="${unit.id}">クイズを始める（全${unit.quiz.length}問）</button>
     <a class="btn secondary" href="#/grammar">ユニット一覧に戻る</a></div>
   `;
@@ -1227,6 +1335,7 @@ function renderGrammarQuiz(app, unitId) {
     <div class="card"><p>${q.q}</p></div>
     ${choicesHtml}
     ${session.answered ? `<p class="muted">${q.note}</p><div class="actionbar"><button class="btn" data-action="nextGrammarQuestion">次へ</button></div>` : ''}
+    <p class="center" style="margin-top:12px;"><button class="quit-link" data-action="quitGrammarQuiz">✕ 途中でやめる</button></p>
   `;
 }
 
@@ -1236,7 +1345,7 @@ function renderGrammarResult(app, unitId) {
   app.innerHTML = `
     <h1>${unit.title}：結果</h1>
     <div class="card center">
-      <p style="font-size:32px; font-weight:700;">${Math.round(status.lastScore * 100)}%</p>
+      <p style="font-size:2rem; font-weight:700;">${Math.round(status.lastScore * 100)}%</p>
       <p class="muted">最高点: ${Math.round(status.bestScore * 100)}%／挑戦回数: ${status.attempts}</p>
     </div>
     <div class="actionbar">
@@ -1317,9 +1426,10 @@ function renderVocabQuiz(app) {
   app.innerHTML = `
     <h1>語彙クイズ（${session.index + 1}/${session.questions.length}）</h1>
     <div class="progress"><div class="progress-fill" style="width:${progressPct}%"></div></div>
-    <div class="card center" style="font-size:24px;">${q.word.w}</div>
+    <div class="card center" style="font-size:1.5rem;">${q.word.w}</div>
     ${choicesHtml}
     ${session.answered ? `<div class="actionbar"><button class="btn" data-action="nextVocabQuestion">次へ</button></div>` : ''}
+    <p class="center" style="margin-top:12px;"><button class="quit-link" data-action="quitVocabQuiz">✕ 途中でやめる</button></p>
   `;
 }
 
@@ -1330,7 +1440,7 @@ function renderVocabResult(app) {
   `).join('');
   app.innerHTML = `
     <h1>語彙クイズ結果</h1>
-    <div class="card center"><p style="font-size:32px; font-weight:700;">${session.correct}/${session.questions.length}</p></div>
+    <div class="card center"><p style="font-size:2rem; font-weight:700;">${session.correct}/${session.questions.length}</p></div>
     <div class="card">${rows}</div>
     <div class="actionbar">
       <button class="btn secondary" data-action="startVocabQuiz">もう一度</button>
@@ -1364,7 +1474,7 @@ function renderP7bResult(app) {
   app.innerHTML = `
     <h1>精密診断の結果</h1>
     <div class="card center">
-      <p style="font-size:20px; font-weight:700;">${result.verdict}</p>
+      <p style="font-size:1.25rem; font-weight:700;">${result.verdict}</p>
       <p class="muted">ベースライン${pct(result.baseline)} → 再テスト${pct(result.retestAccuracy)}（差 ${Math.round(result.diff * 100)}pt）</p>
     </div>
     <div class="actionbar"><a class="btn" href="#/diagnosis">診断結果に戻る</a></div>
@@ -1373,6 +1483,26 @@ function renderP7bResult(app) {
 
 /* ==================== 13. イベント委譲 + 起動 ==================== */
 const ACTIONS = {
+  setHasTakenToeic: (d) => { DATA.user.hasTakenToeic = d.value === 'yes'; save(DATA); render(); },
+  setFontScale: (d) => { DATA.settings.fontScale = d.key; save(DATA); applyFontScale(d.key); render(); },
+  resetExperienceGate: () => { DATA.user.hasTakenToeic = null; save(DATA); render(); },
+  setSelfLevel: (d) => { DATA.user.beginnerProfile.selfLevel = d.key; render(); },
+  submitBeginnerProfile: () => {
+    const p = DATA.user.beginnerProfile;
+    if (!p.selfLevel) return;
+    p.eikenLevel = document.getElementById('eiken-select').value;
+    p.experienceNote = document.getElementById('experience-note').value;
+    const levelDef = CONFIG.selfDiagnosisLevels.find((lv) => lv.key === p.selfLevel);
+    const acc = interpolateScoreToAccuracy(levelDef.score, CONFIG.goal.scoreToAccuracyTable);
+    CONFIG.partOrder.forEach((pk) => { DATA.user.parts[pk] = acc; });
+    const diagnosis = runDiagnosis(DATA.user, CONFIG);
+    DATA.user.flags = diagnosis.flags;
+    DATA.history.push({ date: new Date().toISOString().slice(0, 10), parts: Object.assign({}, DATA.user.parts), note: '自己診断（' + levelDef.label + '）' });
+    APP_STATE.diagnosis = diagnosis;
+    APP_STATE.weeklyMenu = null;
+    save(DATA);
+    location.hash = '#/diagnosis';
+  },
   setGoalMode: (d) => { captureInputForm(); DATA.user.goalMode = d.mode; render(); },
   submitInput: () => {
     captureInputForm();
@@ -1393,10 +1523,16 @@ const ACTIONS = {
   startGrammarQuiz: (d) => { startGrammarQuiz(d.unitId); location.hash = `#/grammar/${d.unitId}/quiz`; },
   chooseGrammarAnswer: (d) => { submitGrammarAnswer(Number(d.index)); render(); },
   nextGrammarQuestion: () => { advanceGrammarQuestion(); },
+  quitGrammarQuiz: () => {
+    const unitId = APP_STATE.grammarSession ? APP_STATE.grammarSession.unitId : null;
+    APP_STATE.grammarSession = null;
+    location.hash = unitId ? `#/grammar/${unitId}` : '#/grammar';
+  },
   startVocabFlashcards: () => { startFlashcardSession(20); location.hash = '#/vocab/flashcards'; },
   startVocabQuiz: () => { startVocabQuiz(CONFIG.menuRules.vocabQuestionCountPerBlock); location.hash = '#/vocab/quiz'; render(); },
   chooseVocabAnswer: (d) => { submitVocabAnswer(Number(d.index)); render(); },
   nextVocabQuestion: () => { advanceVocabQuestion(); },
+  quitVocabQuiz: () => { APP_STATE.vocabSession = null; location.hash = '#/vocab'; },
   flipCard: () => { APP_STATE.flashSession.flipped = !APP_STATE.flashSession.flipped; render(); },
   nextCard: () => { advanceFlashcard(1); },
   prevCard: () => { advanceFlashcard(-1); },
@@ -1427,6 +1563,7 @@ const ACTIONS = {
 if (typeof window !== 'undefined') {
   window.addEventListener('DOMContentLoaded', () => {
     DATA = load();
+    applyFontScale(DATA.settings.fontScale);
     document.getElementById('app').addEventListener('click', (e) => {
       const el = e.target.closest('[data-action]');
       if (!el) return;
