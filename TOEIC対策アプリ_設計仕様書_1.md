@@ -225,8 +225,8 @@ v3候補：スコア写真をVision APIで自動入力。
 - **GitHubリポジトリ**：新規作成（`hei86gns/toeic-app` 想定）。v1完成後にGitHub Pagesへデプロイ。
 - **引き継ぎファイル**：
   - 本仕様書（`TOEIC対策アプリ_設計仕様書.md`）
-  - 語彙データ（`toeic_tsl_full_tangocho.json`）：BUILTINとして `yuriaToeic_v1.html` に直接埋め込む
-- **ファイル名**：`yuriaToeic_v1.html`（単一ファイル、インラインCSS・JS）
+  - 語彙データ（`toeic_tsl_full_tangocho.json`）：BUILTINとして `yuliaToeic_v1.html` に直接埋め込む
+- **ファイル名**：`yuliaToeic_v1.html`（単一ファイル、インラインCSS・JS）
 - **開発順序**（推奨）：
   1. データ構造・configの定義
   2. 診断エンジン（優先度式＋フラグ）
