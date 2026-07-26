@@ -85,10 +85,13 @@ details p, details li{ font-size:0.875rem; }
 .celebration-card{ background:var(--card); border-radius:var(--radius); padding:32px 24px; text-align:center;
   max-width:320px; box-shadow:0 12px 32px rgba(0,0,0,.25); }
 .celebration-card .emoji{ font-size:2.5rem; margin:0 0 8px; }
-.explanation-list{ margin:0; padding-left:20px; }
-.explanation-list li{ margin-bottom:14px; line-height:1.8; }
-.explanation-list li:last-child{ margin-bottom:0; }
-.explanation-list li strong{ color:var(--primary); }
+.grammar-point{ margin-bottom:20px; }
+.grammar-point:last-child{ margin-bottom:0; }
+.grammar-point-text{ margin:0 0 8px; line-height:1.8; }
+.grammar-example{ background:rgba(128,128,128,.08); border-radius:12px; padding:10px 14px; }
+.grammar-example .example-en{ margin:0 0 4px; font-weight:600; line-height:1.6; }
+.grammar-example .example-en strong{ color:var(--primary); }
+.grammar-example .example-note{ margin:0; font-size:0.875rem; color:var(--muted); }
 .quit-link{ background:none; border:none; color:var(--muted); font-size:0.875rem; text-decoration:underline;
   cursor:pointer; padding:8px; }
 .bottom-nav{ position:fixed; left:0; right:0; bottom:0; max-width:480px; margin:0 auto; z-index:5;
@@ -229,7 +232,12 @@ const BUILTIN_VOCAB = [{"w": "abide", "m": "（規則などに）従う、守る
 const GRAMMAR_UNITS = [
   {
     id: 'g_pos', title: '品詞の識別', targetParts: ['P5','P6'],
-    explanation: '英単語は文中の位置によって品詞が決まる。名詞は主語・目的語になり、動詞は述語になり、形容詞は名詞を修飾し、副詞は動詞・形容詞・文全体を修飾する。語尾の特徴（-tion/-mentは名詞、-ive/-ableは形容詞、-lyは副詞など）も手がかりになる。Part5では空所の前後を見て「何を修飾しているか」を確認すれば品詞が絞り込める。',
+    explanation: [
+      { text: '名詞は主語・目的語・補語になり、動詞は述語になる。', example: 'The <strong>manager</strong> reviewed the <strong>report</strong> carefully.', note: 'managerが主語（名詞）、reportが目的語（名詞）。' },
+      { text: '形容詞は名詞を修飾し、副詞は動詞・形容詞・文全体を修飾する。', example: 'She gave a <strong>clear</strong> explanation and answered <strong>clearly</strong>.', note: 'clearは名詞explanationを修飾する形容詞、clearlyは動詞answeredを修飾する副詞。' },
+      { text: '語尾の特徴（-tion/-mentは名詞、-ive/-ableは形容詞、-lyは副詞など）も品詞を見分ける手がかりになる。', example: 'The company values <strong>efficiency</strong> and looks for <strong>efficient</strong> workers.', note: '-cyで終わるefficiencyは名詞、-entで終わるefficientは形容詞。' },
+      { text: 'Part5では空所の前後を見て「何を修飾しているか」「何の役割か」を確認すれば品詞が絞り込める。', example: 'Please complete the form <strong>accurately</strong> before submission.', note: '動詞completeを修飾しているので副詞accuratelyが入る。' },
+    ],
     quiz: [
       { q: 'The report was ___ reviewed.', choices: ['care','careful','carefully','caring'], answer: 2, note: '動詞reviewedを修飾しているので副詞carefully。' },
       { q: 'Her explanation was very ___.', choices: ['clear','clearly','clarity','clarify'], answer: 0, note: 'be動詞の補語として、主語explanationの様子を説明する形容詞clearが入る。' },
@@ -238,7 +246,11 @@ const GRAMMAR_UNITS = [
   },
   {
     id: 'g_tense', title: '時制', targetParts: ['P5','P6'],
-    explanation: '時制は「いつの出来事か」を示す。TOEICでは現在形（習慣・事実）、過去形（完了した過去の出来事、過去を示す語句を伴うことが多い）、現在完了形（過去から現在までの継続・経験・完了）、未来表現（will/be going to、by〜やnext〜などの未来を示す語句を伴う）の使い分けが問われる。文中の時を示す語句（yesterday, since, by next month など）に注目すると時制が絞れる。',
+    explanation: [
+      { text: '現在形は習慣や事実、過去形は「過去に完了した」出来事を表す。', example: 'The factory usually <strong>operates</strong> 24 hours a day, but it <strong>closed</strong> early yesterday.', note: '習慣的事実は現在形operates、昨日の完了した出来事は過去形closed。' },
+      { text: '現在完了形は過去から現在までの継続・経験・完了を表す。', example: 'This branch <strong>has expanded</strong> steadily since it opened in 2010.', note: 'sinceと結びつく現在完了形has expandedは「継続」を表す。' },
+      { text: '未来表現はwill/be going toを使い、by〜やnext〜など未来を示す語句を伴うことが多い。', example: 'The vendor <strong>will deliver</strong> the new equipment by next Tuesday.', note: 'by next Tuesdayという未来の期限を示す語句と結びつくwill deliver。' },
+    ],
     quiz: [
       { q: 'The sales team ___ the new product last month.', choices: ['launch','launches','launched','will launch'], answer: 2, note: 'last month（過去）を示す語句があるので過去形launched。' },
       { q: 'Mr. Sato ___ for this company since 2015.', choices: ['works','worked','has worked','will work'], answer: 2, note: 'since+過去の起点は「継続」を表す現在完了形と結びつく。' },
@@ -247,7 +259,10 @@ const GRAMMAR_UNITS = [
   },
   {
     id: 'g_prep_conj', title: '前置詞vs接続詞', targetParts: ['P5','P6'],
-    explanation: '前置詞の後ろには名詞（句）が続き、接続詞の後ろにはS+V（主語＋動詞）を含む節が続く。似た意味を持つ前置詞と接続詞のペア（because of/because、during/while、despite/although）は、後ろに来る形（名詞句かSVか）で見分けるのがコツ。',
+    explanation: [
+      { text: '前置詞の後ろには名詞（句）が続く。', example: 'The flight was delayed <strong>because of</strong> mechanical problems.', note: '後ろが名詞句(mechanical problems)なので前置詞because of。' },
+      { text: '接続詞の後ろにはS+V（主語＋動詞）を含む節が続く。', example: '<strong>Although</strong> the budget was tight, the marketing team launched the campaign.', note: '後ろにS+V(the budget was tight)が続くので接続詞although。' },
+    ],
     quiz: [
       { q: '___ the heavy rain, the game was cancelled.', choices: ['Because','Because of','Although','While'], answer: 1, note: '後ろが名詞句(the heavy rain)なので前置詞のBecause of。' },
       { q: '___ it was raining heavily, the game continued.', choices: ['Because of','Despite','Although','During'], answer: 2, note: '後ろにS+V(it was raining)があるので接続詞のAlthough。' },
@@ -256,7 +271,11 @@ const GRAMMAR_UNITS = [
   },
   {
     id: 'g_voice', title: '態（能動態・受動態）', targetParts: ['P5','P6'],
-    explanation: '主語が「〜する」なら能動態、「〜される」なら受動態（be動詞＋過去分詞）。空所の直後に目的語（名詞）が続いていれば能動態、前置詞句や何も続かなければ受動態になりやすい。進行中の動作を強調する進行形受動態（is being done）にも注意。',
+    explanation: [
+      { text: '主語が「〜する」なら能動態を使う。', example: 'The technician <strong>will repair</strong> the printer this afternoon.', note: '主語the technicianが「修理する」側で、直後に目的語が続くので能動態。' },
+      { text: '主語が「〜される」なら受動態（be動詞＋過去分詞）を使う。', example: 'The updated guidelines <strong>will be distributed</strong> to all staff next week.', note: '主語the updated guidelinesは「配布される」側なので受動態。' },
+      { text: '進行中の動作を強調する場合は進行形受動態（is being done）を使う。', example: 'The new software <strong>is being tested</strong> by the IT department this month.', note: '「テストされている最中」という進行中の受動態is being tested。' },
+    ],
     quiz: [
       { q: 'The new policy ___ by all employees next month.', choices: ['will follow','will be followed','following','followed'], answer: 1, note: '主語the new policyは「従われる」側なので受動態will be followed。' },
       { q: 'The report ___ carefully before it was submitted.', choices: ['reviewed','was reviewed','reviews','review'], answer: 1, note: 'the reportは「見直される」側なので過去の受動態was reviewed。' },
@@ -267,7 +286,13 @@ const GRAMMAR_UNITS = [
   },
   {
     id: 'g_agreement', title: '主語と動詞の一致', targetParts: ['P5','P6'],
-    explanation: '単数主語には単数動詞、複数主語には複数動詞。集合名詞（team等）は文脈次第、economics等の学問名は形が複数でも単数扱い。each/everyは単数扱い、both A and Bは常に複数扱い。either A or B / neither A nor Bは動詞に近い方の名詞（B）に一致させる。主語と動詞の間に修飾語句が挟まっても、文の核となる主語につられずに一致させることが重要。',
+    explanation: [
+      { text: '単数主語には単数動詞、複数主語には複数動詞を使う。', example: 'Each of the branch managers <strong>is</strong> expected to attend the training.', note: 'Each of ~はEachが主語なので単数扱い。' },
+      { text: 'both A and Bは常に複数扱い。', example: 'Both the CEO and the CFO <strong>are</strong> scheduled to speak at the event.', note: 'Both A and Bは常に複数扱いのare。' },
+      { text: 'either A or B / neither A nor Bは動詞に近い方の名詞に一致させる。', example: 'Neither the supervisor nor the technicians <strong>are</strong> familiar with the new system.', note: '動詞に近いtechnicians（複数）に合わせてare。' },
+      { text: '主語と動詞の間に修飾語句が挟まっても、文の核となる主語につられずに一致させる。', example: 'The summary of the quarterly results <strong>was</strong> included in the email.', note: '主語の核はThe summary（単数）。of the quarterly resultsにつられない。' },
+      { text: 'economics等の学問名やa number of／the number ofなど数量表現の一致にも注意する。', example: 'The number of job applications <strong>has</strong> risen sharply this year.', note: 'the number of+複数名詞は単数扱い。' },
+    ],
     quiz: [
       { q: 'Each of the applicants ___ required to submit a resume.', choices: ['is','are','were','have been'], answer: 0, note: 'Each of ~は主語がEachなので単数扱い、isが正解。' },
       { q: 'Both the manager and the assistant ___ attending the conference.', choices: ['is','are','was','has been'], answer: 1, note: 'Both A and Bは常に複数扱いなのでare。' },
@@ -279,7 +304,13 @@ const GRAMMAR_UNITS = [
   },
   {
     id: 'g_prepositions', title: '前置詞', targetParts: ['P5','P6'],
-    explanation: '時刻にはat、曜日・日付にはon、月・年など広い期間にはinを使う。期限（〜までに）はby、継続（〜まで）はuntil。期間の長さはfor、特定の期間の中はduring、起点を表すsinceは現在完了と結びつく。2者間はbetween、3者以上の間はamong。動詞・形容詞＋前置詞の決まった組み合わせ（depend on, be responsible for等）も重要。',
+    explanation: [
+      { text: '時刻にはat、曜日・日付にはon、月・年など広い期間にはinを使う。', example: 'The workshop begins <strong>at</strong> 9 a.m. sharp.', note: '時刻を表すat。' },
+      { text: '期限（〜までに）はby、継続（〜まで）はuntilを使い分ける。', example: 'Please return the signed contract <strong>by</strong> the end of the week.', note: '期限を表すby。' },
+      { text: '期間の長さはfor、特定の期間の中はduring、起点を表すsinceは現在完了と結びつく。', example: 'He has managed this store <strong>since</strong> 2018.', note: '起点を表すsinceは現在完了と結びつく。' },
+      { text: '2者間はbetween、3者以上の間はamongを使う。', example: 'The prize money will be divided <strong>among</strong> the top three teams.', note: '3つ以上の間で分けるのでamong。' },
+      { text: '動詞・形容詞＋前置詞の決まった組み合わせ（depend on, be responsible for等）も重要。', example: 'This department is <strong>responsible for</strong> handling customer complaints.', note: 'be responsible for〜という決まったコロケーション。' },
+    ],
     quiz: [
       { q: 'The meeting is scheduled ___ 10 a.m. on Monday.', choices: ['in','on','at','by'], answer: 2, note: '時刻を表すにはatを使う。' },
       { q: 'Please submit the report ___ Friday.', choices: ['until','by','during','since'], answer: 1, note: '期限（〜までに）を表すby。' },
@@ -291,7 +322,10 @@ const GRAMMAR_UNITS = [
   },
   {
     id: 'g_conjunctions', title: '接続詞（従属・相関）', targetParts: ['P5','P6'],
-    explanation: '従属接続詞は時・条件・理由・譲歩などを表し、後ろにS+Vを伴う（although, because, once, provided that等）。相関接続詞（both A and B / either A or B / neither A nor B / not only A but also B）はペアで使う表現として形を覚える。',
+    explanation: [
+      { text: '従属接続詞は時・条件・理由・譲歩などを表し、後ろにS+Vを伴う。', example: 'Employees may work remotely <strong>provided that</strong> they attend the weekly meeting.', note: '「〜という条件で」を表す従属接続詞provided that。' },
+      { text: '相関接続詞（both A and B / either A or B / not only A but also B等）はペアで使う。', example: 'The new policy applies <strong>not only</strong> to full-time staff <strong>but also</strong> to part-time workers.', note: 'not only A but also Bという相関接続詞のペア。' },
+    ],
     quiz: [
       { q: '___ the flight was delayed, we still arrived on time for the meeting.', choices: ['Despite','Because','Although','During'], answer: 2, note: '後ろにS+V(the flight was delayed)があるので接続詞Although。' },
       { q: 'You may take a break ___ you finish the assignment first.', choices: ['provided that','because of','despite','during'], answer: 0, note: '「〜という条件で」を表すprovided that。' },
@@ -302,7 +336,12 @@ const GRAMMAR_UNITS = [
   },
   {
     id: 'g_relative', title: '関係詞', targetParts: ['P5','P6'],
-    explanation: '関係代名詞は先行詞が人かモノかで使い分ける（who/whom/whose vs which/that）。後ろの節は主語・目的語・所有格のいずれかが欠けた不完全な文になる。関係副詞（where/when）は後ろに欠けのない完全な文が続く。複合関係代名詞（whichever等）は「〜はどちらでも」という意味を表す。',
+    explanation: [
+      { text: '関係代名詞は先行詞が人かモノかで使い分ける（who/whom/whose vs which/that）。', example: 'This is the team <strong>which</strong> designed the new logo.', note: '先行詞the teamはモノなので主格which。' },
+      { text: '後ろの節は主語・目的語・所有格のいずれかが欠けた不完全な文になる。', example: 'The consultant <strong>whom</strong> we hired last month gave us useful advice.', note: '後ろのweの目的語が欠けているので目的格whom。' },
+      { text: '関係副詞（where/when）は後ろに欠けのない完全な文が続く。', example: 'This is the office <strong>where</strong> the merger was announced last year.', note: '後ろが完全な文なので関係副詞where。' },
+      { text: '複合関係代名詞（whichever等）は「〜はどちらでも」という意味を表す。', example: 'Employees can choose <strong>whichever</strong> schedule suits them best.', note: '「どちらでも都合の良い方」を表す複合関係代名詞whichever。' },
+    ],
     quiz: [
       { q: 'The employee ___ resume impressed the manager was hired immediately.', choices: ['who','whom','whose','which'], answer: 2, note: '「社員の履歴書」という所有関係を表す所有格の関係代名詞whose。' },
       { q: 'This is the department ___ handles customer complaints.', choices: ['who','which','whom','whose'], answer: 1, note: '先行詞the departmentはモノなので主格which。' },
@@ -314,7 +353,11 @@ const GRAMMAR_UNITS = [
   },
   {
     id: 'g_verbals', title: '準動詞（to不定詞・動名詞）', targetParts: ['P5','P6'],
-    explanation: '動詞の目的語がto不定詞になるか動名詞になるかは動詞ごとに決まっている（decide to do / enjoy doing等）。前置詞の直後は必ず動名詞になる（look forward to -ing）。remember to do（これからするのを覚えている）とremember doing（すでにしたことを覚えている）のように、意味が変わる動詞にも注意。',
+    explanation: [
+      { text: '動詞の目的語がto不定詞になるか動名詞になるかは動詞ごとに決まっている。', example: 'The board decided <strong>to postpone</strong> the product launch.', note: 'decideはto不定詞を目的語に取る動詞。' },
+      { text: '前置詞の直後は必ず動名詞になる。', example: 'We look forward to <strong>working</strong> with you on this project.', note: 'look forward toのtoは前置詞なので後ろは動名詞。' },
+      { text: 'remember to do（これからする）とremember doing（すでにした）のように意味が変わる動詞にも注意。', example: 'Please remember <strong>to submit</strong> your timesheet by Friday.', note: '「これから〜するのを忘れずに」はremember to do。' },
+    ],
     quiz: [
       { q: 'The manager decided ___ the meeting until next week.', choices: ['postponing','postpone','to postpone','postponed'], answer: 2, note: 'decideはto不定詞を目的語に取る動詞。' },
       { q: 'We look forward to ___ from you soon.', choices: ['hear','hearing','heard','to hear'], answer: 1, note: 'look forward toのtoは前置詞なので後ろは動名詞hearing。' },
@@ -325,7 +368,11 @@ const GRAMMAR_UNITS = [
   },
   {
     id: 'g_participles', title: '分詞・分詞構文', targetParts: ['P5','P6'],
-    explanation: '現在分詞（-ing）は「〜している（能動）」、過去分詞（-ed）は「〜される（受動）」を表し名詞を修飾する。感情動詞は人が主語なら-ed、モノ・事が主語なら-ingになる。分詞構文は主節の主語と分詞の意味上の主語が一致するように使い、「〜して」「〜なので」等の意味を付帯的に表す。',
+    explanation: [
+      { text: '現在分詞（-ing）は「〜している（能動）」を表し名詞を修飾する。', example: 'The firm recruited a few <strong>leading</strong> designers last year.', note: '「一流の、業界をリードする」という能動的な意味の現在分詞。' },
+      { text: '過去分詞（-ed）は「〜される（受動）」を表す。感情動詞は人が主語なら-ed、モノが主語なら-ingになる。', example: 'The <strong>attached</strong> file contains the updated price list.', note: '「添付された」ファイルという受動の意味。' },
+      { text: '分詞構文は主節の主語と分詞の意味上の主語が一致するように使う。', example: '<strong>Realizing</strong> the mistake, the accountant immediately corrected the invoice.', note: '分詞構文の意味上の主語は主節の主語the accountantと一致する。' },
+    ],
     quiz: [
       { q: 'The seminar was very ___ for new managers.', choices: ['interested','interesting','interest','to interest'], answer: 1, note: 'the seminar（モノ）が主語で「興味を引き起こす」側なのでinteresting。' },
       { q: '___ about the delayed shipment, the customer called the support team.', choices: ['Concern','Concerned','Concerning','To concern'], answer: 1, note: 'customerは「懸念させられる」側なので過去分詞concerned。' },
@@ -336,7 +383,11 @@ const GRAMMAR_UNITS = [
   },
   {
     id: 'g_comparison', title: '比較', targetParts: ['P5','P6'],
-    explanation: '原級はas ~ as、比較級は-er/more ~ than、最上級はthe -est/the most ~。比較級を強調するにはmuch/far/even/a lotを使う（veryは比較級を直接修飾できない）。the + 比較級, the + 比較級で「〜すればするほど…」を表す。',
+    explanation: [
+      { text: '原級はas ~ as、比較級は-er/more ~ than、最上級はthe -est/the most ~を使う。', example: 'Among all the proposals, this one offers <strong>the most</strong> value.', note: '3つ以上の中での最上級。' },
+      { text: '比較級を強調するにはmuch/far/even/a lotを使う（veryは比較級を直接修飾できない）。', example: 'The new printer is <strong>much faster</strong> than the old one.', note: '比較級を強調する語順はmuch faster。' },
+      { text: 'the + 比較級, the + 比較級で「〜すればするほど…」を表す。', example: '<strong>The earlier</strong> you book the flight, <strong>the cheaper</strong> the ticket will be.', note: 'the+比較級, the+比較級の構文。' },
+    ],
     quiz: [
       { q: 'This model is ___ efficient than the previous one.', choices: ['much more','much most','more much','most much'], answer: 0, note: '比較級を強調する語順はmuch more。' },
       { q: 'Of all the candidates, she has ___ experience.', choices: ['more','most','the most','much'], answer: 2, note: '3人以上の中での最上級にはthe mostを使う。' },
@@ -347,7 +398,11 @@ const GRAMMAR_UNITS = [
   },
   {
     id: 'g_pronouns', title: '代名詞', targetParts: ['P5','P6'],
-    explanation: '代名詞は主格・所有格・目的格・所有代名詞で形が変わる。名詞の前は所有格（their report等）が頻出パターン。再帰代名詞（oneself）は主語と目的語が同じ人・物を指す場合や「自分自身で」を強調する場合に使う。',
+    explanation: [
+      { text: '名詞の前は所有格（their report等）が頻出パターン。', example: 'Managers should review <strong>their</strong> team\'s progress weekly.', note: '名詞progressの前は所有格their。' },
+      { text: '所有代名詞は「〜のもの」を表す。', example: 'The final decision is <strong>his</strong>, not the committee\'s.', note: '「彼のもの」を表す所有代名詞his。' },
+      { text: '再帰代名詞（oneself）は主語と目的語が同じ人・物を指す場合や「自分自身で」を強調する場合に使う。', example: 'The assistant fixed the printer <strong>himself</strong> without calling support.', note: '「自分自身で」を強調する再帰代名詞himself。' },
+    ],
     quiz: [
       { q: 'Employees must submit ___ timesheets by Friday.', choices: ['they','them','their','theirs'], answer: 2, note: '名詞timesheetsの前は所有格their。' },
       { q: 'The award belongs to ___, not to the team.', choices: ['she','her','hers','herself'], answer: 2, note: '「彼女のもの」を表す所有代名詞hers。' },
@@ -358,7 +413,10 @@ const GRAMMAR_UNITS = [
   },
   {
     id: 'g_modals', title: '助動詞', targetParts: ['P5','P6'],
-    explanation: 'can/could/may/might/must/should/will/wouldなどは可能性・義務・許可等のニュアンスを区別する。〈助動詞＋have＋過去分詞〉は過去の推量・後悔を表す（should have done=すべきだったのに、must have done=〜したに違いない）。',
+    explanation: [
+      { text: 'can/could/may/might/must/should/willなどは可能性・義務・許可等のニュアンスを区別する。', example: 'All employees <strong>must</strong> wear an ID badge in the building.', note: '義務「〜しなければならない」を表すmust。' },
+      { text: '〈助動詞＋have＋過去分詞〉は過去の推量・後悔を表す。', example: 'We <strong>should have booked</strong> the venue sooner; it\'s now fully reserved.', note: '「〜すべきだったのに(実際はしなかった)」という過去への後悔。' },
+    ],
     quiz: [
       { q: 'All visitors ___ sign in at the front desk.', choices: ['must','might','would','could'], answer: 0, note: '義務「〜しなければならない」を表すmust。' },
       { q: 'You ___ have called me earlier; I was worried.', choices: ['should','might','can','will'], answer: 0, note: '「〜すべきだったのに(実際はしなかった)」という過去への後悔を表すshould have done。' },
@@ -369,7 +427,13 @@ const GRAMMAR_UNITS = [
   },
   {
     id: 'g_causative', title: '使役動詞・知覚動詞', targetParts: ['P5','P6'],
-    explanation: '使役動詞make/have/letはO＋原形不定詞を取る。getだけは例外的にO＋to不定詞（get O to do＝人にさせる）を取る。have/get＋O＋過去分詞は「（物を）〜してもらう／される」という受動的な意味を表す。知覚動詞see/hear/feel/watchはO＋原形（動作の一部始終）またはO＋現在分詞（進行中の場面）を取る。使役・知覚動詞が受動態になると、原形不定詞はto不定詞に変わる。',
+    explanation: [
+      { text: '使役動詞make/have/letはO＋原形不定詞を取る。', example: 'The supervisor had the staff <strong>attend</strong> a workshop on customer service.', note: '使役動詞haveはO＋原形不定詞を取る。' },
+      { text: 'getだけは例外的にO＋to不定詞（get O to do＝人にさせる）を取る。', example: 'She will get the technician <strong>to fix</strong> the copier tomorrow.', note: 'get O to doは使役動詞の中で例外的にto不定詞を取る。' },
+      { text: 'have/get＋O＋過去分詞は「（物を）〜してもらう／される」という受動的な意味を表す。', example: 'He had his car <strong>serviced</strong> before the long drive.', note: 'have+O+過去分詞で「〜してもらう」という受動的な意味。' },
+      { text: '知覚動詞see/hear/feel/watchはO＋原形（動作の一部始終）またはO＋現在分詞（進行中の場面）を取る。', example: 'From the hallway, he heard the employees <strong>discussing</strong> the merger.', note: '進行中の動作を強調する場合は現在分詞discussing。' },
+      { text: '使役・知覚動詞が受動態になると、原形不定詞はto不定詞に変わる。', example: 'The staff were made <strong>to attend</strong> the mandatory training session.', note: 'makeが受動態になると原形attend→to attendに変わる。' },
+    ],
     quiz: [
       { q: 'The manager had the new employee ___ the safety procedures before starting work.', choices: ['review','to review','reviewing','reviewed'], answer: 0, note: '使役動詞haveはO＋原形不定詞を取る。' },
       { q: 'The manager will get the new intern ___ the files before the meeting.', choices: ['organize','to organize','organizing','organized'], answer: 1, note: 'get O to doは使役動詞の中で例外的にto不定詞を取る。' },
@@ -381,7 +445,11 @@ const GRAMMAR_UNITS = [
   },
   {
     id: 'g_noun_clauses', title: '名詞節', targetParts: ['P5','P6'],
-    explanation: 'that節・wh節・whether/if節は、文の主語・目的語・補語になる名詞節。動詞の目的語になるthat節はしばしばthatが省略される。同格のthat節（the fact that〜）は直前の抽象名詞の内容を説明する。',
+    explanation: [
+      { text: 'that節・wh節・whether/if節は文の主語・目的語・補語になる名詞節。', example: '<strong>Whether</strong> the merger will proceed as planned is still unclear.', note: '文の主語になる名詞節を作るwhether。' },
+      { text: '動詞の目的語になるthat節はしばしばthatが省略される。', example: 'The HR department confirmed that the position <strong>had been</strong> filled.', note: 'confirmの目的語になるthat節（thatは省略可能）。' },
+      { text: '同格のthat節（the fact that〜）は直前の抽象名詞の内容を説明する。', example: 'The memo states the fact <strong>that</strong> the office will relocate next year.', note: '同格のthat節。「〜という事実」の内容を説明する。' },
+    ],
     quiz: [
       { q: '___ the shipment will arrive on time remains uncertain.', choices: ['What','That','Whether','Because'], answer: 2, note: '文の主語になる名詞節を作るWhether（〜かどうか）。' },
       { q: 'The manager confirmed ___ the meeting had been rescheduled.', choices: ['what','that','whether','if'], answer: 1, note: 'confirmの目的語になる、事実を伝えるthat節（thatは省略可能）。' },
@@ -392,7 +460,11 @@ const GRAMMAR_UNITS = [
   },
   {
     id: 'g_quantifiers', title: '数量表現', targetParts: ['P5','P6'],
-    explanation: '可算名詞にはmany/few、不可算名詞にはmuch/littleを使う。a few/a littleは「少しはある」という肯定的なニュアンス、few/littleは「ほとんどない」という否定的なニュアンス。a number of＋複数名詞は複数扱い、the number of＋複数名詞は単数扱い。',
+    explanation: [
+      { text: '可算名詞にはmany/few、不可算名詞にはmuch/littleを使う。', example: '<strong>Few</strong> customers complained about the new policy.', note: 'customersは可算名詞の複数形なのでFew。' },
+      { text: 'a few/a littleは「少しはある」、few/littleは「ほとんどない」という否定的なニュアンス。', example: 'There is very <strong>little</strong> budget left for this quarter.', note: 'budgetは不可算名詞。否定的ニュアンスの「ほとんどない」はlittle。' },
+      { text: 'a number of＋複数名詞は複数扱い、the number of＋複数名詞は単数扱い。', example: '<strong>A number of</strong> clients have asked for a refund this month.', note: 'a number of+複数名詞は複数扱い。' },
+    ],
     quiz: [
       { q: '___ employees attended the workshop yesterday.', choices: ['Much','Little','Few','A little'], answer: 2, note: 'employeesは可算名詞の複数形なのでFew（可算名詞用の「少ない」）。' },
       { q: 'We have very ___ time left before the deadline.', choices: ['few','many','little','a few'], answer: 2, note: 'timeは不可算名詞なのでlittle（不可算名詞用の「少ない」）。' },
@@ -403,7 +475,10 @@ const GRAMMAR_UNITS = [
   },
   {
     id: 'g_mandative', title: '仮定法現在（提案・要求のthat節）', targetParts: ['P5','P6'],
-    explanation: 'suggest/recommend/propose/require/insist/demandなどの動詞や、It is essential/necessary等の後のthat節では、主語の人称・数に関わらず動詞は原形のまま（三人称単数でもsが付かない）。ビジネス英語の定型表現として非常によく使われる。',
+    explanation: [
+      { text: 'suggest/recommend/propose/require/insist/demandなどの動詞の後のthat節では、動詞は原形のまま。', example: 'The board recommended that the budget <strong>be</strong> reviewed again.', note: 'recommend that+S+原形。三人称単数でもbeのまま。' },
+      { text: 'It is essential/necessary等の後のthat節でも同様に原形を使う。', example: 'It is necessary that each applicant <strong>submit</strong> two references.', note: 'It is necessary that+S+原形。三人称単数でもsを付けない。' },
+    ],
     quiz: [
       { q: 'The committee recommended that the proposal ___ revised before submission.', choices: ['is','be','was','will be'], answer: 1, note: 'recommend that + S + 原形。三人称単数でもbeのまま。' },
       { q: 'It is essential that every employee ___ the safety training.', choices: ['completes','complete','completed','will complete'], answer: 1, note: 'It is essential that + S + 原形。三人称単数でもsを付けない。' },
@@ -414,7 +489,13 @@ const GRAMMAR_UNITS = [
   },
   {
     id: 'g_conditionals_advanced', title: '仮定法過去・過去完了・混合型', targetParts: ['P5','P6'],
-    explanation: '仮定法は「事実に反する仮定」を表す。現在の事実に反する場合はIf + 過去形, would/could/might + 動詞原形（仮定法過去）。be動詞は主語に関わらずwereを使うのが伝統的な用法。過去の事実に反する場合はIf + had + 過去分詞, would/could/might + have + 過去分詞（仮定法過去完了）。過去の条件が現在の結果に影響する混合型（If + had + 過去分詞, would + 動詞原形）もある。',
+    explanation: [
+      { text: '現在の事実に反する場合はIf + 過去形, would/could/might + 動詞原形（仮定法過去）。', example: 'If I <strong>were</strong> in charge, I would change the schedule.', note: '仮定法過去、be動詞は主語に関わらずwere。' },
+      { text: 'be動詞は主語に関わらずwereを使うのが伝統的な用法。', example: 'He would join the meeting if he <strong>were</strong> available.', note: '仮定法過去のbe動詞はwere。' },
+      { text: '過去の事実に反する場合はIf + had + 過去分詞, would/could/might + have + 過去分詞（仮定法過去完了）。', example: 'If the team <strong>had tested</strong> the software earlier, they could have avoided the crash.', note: '過去の事実に反する仮定はIf+had+過去分詞。' },
+      { text: '仮定法過去完了の帰結節はwould have + 過去分詞。', example: 'If she had checked the numbers again, she <strong>would have caught</strong> the error.', note: '帰結節はwould have+過去分詞。' },
+      { text: '過去の条件が現在の結果に影響する混合型（If + had + 過去分詞, would + 動詞原形）もある。', example: 'If they had invested earlier, they <strong>would be</strong> much more profitable now.', note: '混合型仮定法：過去の条件（had+過去分詞）が現在の結果（would+動詞原形）に影響。' },
+    ],
     quiz: [
       { q: 'If I ___ you, I would accept the job offer.', choices: ['am','was','were','be'], answer: 2, note: '仮定法過去ではbe動詞は主語に関わらずwereを使うのが伝統的な用法。' },
       { q: 'If the company ___ more research, it could have avoided the product failure.', choices: ['did','had done','has done','would do'], answer: 1, note: '過去の事実に反する仮定（仮定法過去完了）はIf + had + 過去分詞。' },
@@ -425,7 +506,12 @@ const GRAMMAR_UNITS = [
   },
   {
     id: 'g_subjunctive_extra', title: '仮定法：倒置・wish・その他の表現', targetParts: ['P5','P6'],
-    explanation: 'フォーマルな文書ではifを省略して倒置する形が使われる（Were I ~, / Had I known ~, / Should you need ~,）。wish + 仮定法過去/過去完了は現在/過去への後悔・願望を表す。as if / as thoughは「まるで〜であるかのように」。without / but for / otherwiseは「〜がなければ」という仮定を表す。',
+    explanation: [
+      { text: 'フォーマルな文書ではifを省略して倒置する形が使われる（Were I ~, / Had I known ~, / Should you need ~,）。', example: '<strong>Should</strong> you have any questions, please feel free to email us.', note: 'Should you have~はIf you should have~のifを省略した倒置形。' },
+      { text: 'wish + 仮定法過去/過去完了は現在/過去への後悔・願望を表す。', example: 'I wish I <strong>had</strong> attended the seminar last week.', note: 'I wish+仮定法過去完了で過去への後悔を表す。' },
+      { text: 'as if / as thoughは「まるで〜であるかのように」を表す。', example: 'She talks about the project as if she <strong>were</strong> the manager.', note: 'as if+仮定法過去（were）で「まるで〜であるかのように」。' },
+      { text: 'without / but for / otherwiseは「〜がなければ」という仮定を表す。', example: '<strong>Without</strong> his approval, the deal would not have gone through.', note: 'without（〜がなければ）は仮定法的な帰結（would not have gone through）と結びつく。' },
+    ],
     quiz: [
       { q: '___ you need any further assistance, please contact our support team.', choices: ['If','Should','Were','Unless'], answer: 1, note: 'Should you need ~はIf you should need ~のifを省略した倒置形。' },
       { q: '___ I known about the delay, I would have rescheduled the meeting.', choices: ['If','Had','Were','Should'], answer: 1, note: 'Had I known ~はIf I had known ~のifを省略した倒置形。' },
@@ -436,7 +522,10 @@ const GRAMMAR_UNITS = [
   },
   {
     id: 'g_inversion', title: '倒置・強調構文', targetParts: ['P5','P6'],
-    explanation: '否定的な意味を持つ副詞（Never, Rarely, Not only, Little等）やOnly + 副詞句が文頭に来ると、主語と（助）動詞が倒置される。強調構文It is/was ~ thatは、文中の特定の要素を強調する。',
+    explanation: [
+      { text: '否定的な意味を持つ副詞（Never, Rarely, Not only等）が文頭に来ると、主語と（助）動詞が倒置される。', example: '<strong>Rarely</strong> does the CEO attend these weekly meetings.', note: '否定的な意味を持つ副詞Rarelyが文頭に来ると倒置（does the CEO attend）が起こる。' },
+      { text: '強調構文It is/was ~ thatは、文中の特定の要素を強調する。', example: 'It was the finance department <strong>that</strong> discovered the error.', note: '強調構文で特定の要素（the finance department）を強調する。' },
+    ],
     quiz: [
       { q: '___ has the company faced such a significant financial challenge.', choices: ['Never','Ever','Always','Sometimes'], answer: 0, note: '否定的な意味を持つ副詞Neverが文頭に来ると倒置（has the company faced）が起こる。' },
       { q: 'Not only ___ the deadline, but she also improved the quality of the report.', choices: ['she met','did she meet','she did meet','met she'], answer: 1, note: 'Not onlyが文頭に来ると倒置が起こり、did + 主語 + 原形の形になる。' },
@@ -447,7 +536,10 @@ const GRAMMAR_UNITS = [
   },
   {
     id: 'g_collocations', title: '語法・コロケーション', targetParts: ['P5','P6'],
-    explanation: '動詞・形容詞・名詞と前置詞の決まった組み合わせ（コロケーション）を覚える。似た意味の紛らわしい語（affect/effect、raise/rise等）は品詞・用法の違いで使い分ける。',
+    explanation: [
+      { text: '動詞・形容詞・名詞と前置詞の決まった組み合わせ（コロケーション）を覚える。', example: 'Every employee must <strong>comply with</strong> the company\'s code of conduct.', note: 'comply with（〜を遵守する）という決まったコロケーション。' },
+      { text: '似た意味の紛らわしい語（affect/effect、raise/rise等）は品詞・用法の違いで使い分ける。', example: 'The cost of materials is likely to <strong>rise</strong> next year.', note: 'rise（自動詞：上がる）とraise（他動詞：〜を上げる、目的語が必要）の混同に注意。ここでは目的語が無いのでrise。' },
+    ],
     quiz: [
       { q: 'The success of the project ___ on effective communication among team members.', choices: ['depends','relies','insists','consists'], answer: 0, note: 'depend on（〜次第である）という決まったコロケーション。' },
       { q: 'The committee ___ of five members from different departments.', choices: ['consists','depends','complies','relies'], answer: 0, note: 'consist of（〜から成る）という決まったコロケーション。' },
@@ -1371,28 +1463,22 @@ function renderGrammarStats(app) {
   `;
 }
 
-function formatExplanationPoints(text) {
-  return text.split('。').map((s) => s.trim()).filter(Boolean).map((s) => `<li>${s}。</li>`).join('');
-}
-
-function buildExampleSentenceHtml(q) {
-  const answerText = q.choices[q.answer];
-  return q.q.replace('___', `<strong>${answerText}</strong>`);
-}
-
 function renderGrammarUnit(app, unitId) {
   const unit = GRAMMAR_UNITS.find((u) => u.id === unitId);
   if (!unit) { location.hash = '#/grammar'; return; }
-  const examplesHtml = unit.quiz.map((q) => `<li>${buildExampleSentenceHtml(q)}<br><span class="muted">${q.note}</span></li>`).join('');
+  const pointsHtml = unit.explanation.map((p) => `
+    <div class="grammar-point">
+      <p class="grammar-point-text">${p.text}</p>
+      <div class="grammar-example">
+        <p class="example-en">${p.example}</p>
+        <p class="example-note">${p.note}</p>
+      </div>
+    </div>`).join('');
   app.innerHTML = `
     <h1>${unit.title}</h1>
     <div class="card">
-      <h2>📖 ポイント</h2>
-      <ul class="explanation-list">${formatExplanationPoints(unit.explanation)}</ul>
-    </div>
-    <div class="card">
-      <h2>✏️ 例文</h2>
-      <ul class="explanation-list">${examplesHtml}</ul>
+      <h2>📖 ポイントと例文</h2>
+      ${pointsHtml}
     </div>
     <div class="actionbar"><button class="btn" data-action="startGrammarQuiz" data-unit-id="${unit.id}">クイズを始める（全${unit.quiz.length}問）</button>
     <a class="btn secondary" href="#/grammar">ユニット一覧に戻る</a></div>
@@ -1435,7 +1521,7 @@ function renderGrammarQuiz(app, unitId) {
     <div class="card"><p>${q.q}</p></div>
     ${choicesHtml}
     ${session.answered ? `<p class="muted">${q.note}</p><div class="actionbar"><button class="btn" data-action="nextGrammarQuestion">次へ</button></div>` : ''}
-    <p class="center" style="margin-top:12px;"><button class="quit-link" data-action="quitGrammarQuiz">✕ 途中でやめる</button></p>
+    <p class="center" style="margin-top:36px;"><button class="quit-link" data-action="quitGrammarQuiz">✕ 途中でやめる</button></p>
   `;
 }
 
@@ -1556,7 +1642,7 @@ function renderVocabQuiz(app) {
     <div class="card center" style="font-size:1.5rem;">${q.word.w}</div>
     ${choicesHtml}
     ${session.answered ? `<div class="actionbar"><button class="btn" data-action="nextVocabQuestion">次へ</button></div>` : ''}
-    <p class="center" style="margin-top:12px;"><button class="quit-link" data-action="quitVocabQuiz">✕ 途中でやめる</button></p>
+    <p class="center" style="margin-top:36px;"><button class="quit-link" data-action="quitVocabQuiz">✕ 途中でやめる</button></p>
   `;
 }
 
