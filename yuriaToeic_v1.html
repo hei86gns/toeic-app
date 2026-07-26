@@ -214,6 +214,7 @@ const CONFIG = {
     { key: 'large', label: '大', rootPx: 19 },
     { key: 'xlarge', label: '特大', rootPx: 22 },
   ],
+  review: { batchSize: 10 },
 };
 
 /* ==================== 2. BUILTIN_VOCAB (TSL 1,258語 / CC BY-SA 4.0由来・独自日本語訳) ==================== */
@@ -471,7 +472,7 @@ const DEFAULT_DATA = {
   history: [],
   progress: {
     vocab: { wrongCounts: {}, seenCounts: {}, quizHistory: [] },
-    grammar: { unitStatus: {} },
+    grammar: { unitStatus: {}, wrongQuestions: {} },
     dailyLog: {},
     milestoneState: { streakStartDate: null, celebrated: [] },
   },
@@ -696,7 +697,22 @@ function startVocabQuiz(count) {
   count = count || CONFIG.menuRules.vocabQuestionCountPerBlock;
   const words = pickQuizWords(count, DATA.progress, BUILTIN_VOCAB);
   const questions = words.map((w) => buildQuizQuestion(w, BUILTIN_VOCAB));
-  APP_STATE.vocabSession = { questions, index: 0, correct: 0, results: [], answered: false, lastChoiceIndex: null };
+  APP_STATE.vocabSession = { questions, index: 0, correct: 0, results: [], answered: false, lastChoiceIndex: null, mode: 'normal' };
+}
+
+function getWrongVocabWords(progress, pool) {
+  return pool.filter((w) => (progress.wrongCounts[w.w] || 0) > 0);
+}
+
+function startVocabReviewQuiz(offset) {
+  offset = offset || 0;
+  const wrongWords = getWrongVocabWords(DATA.progress.vocab, BUILTIN_VOCAB);
+  const chunk = wrongWords.slice(offset, offset + CONFIG.review.batchSize);
+  const questions = chunk.map((w) => buildQuizQuestion(w, BUILTIN_VOCAB));
+  APP_STATE.vocabSession = {
+    questions, index: 0, correct: 0, results: [], answered: false, lastChoiceIndex: null,
+    mode: 'review', reviewOffset: offset, reviewTotalWrong: wrongWords.length,
+  };
 }
 
 function submitVocabAnswer(choiceIndex) {
@@ -753,30 +769,61 @@ function advanceFlashcard(delta) {
 /* ==================== 8. 文法モジュール ==================== */
 function startGrammarQuiz(unitId) {
   const unit = GRAMMAR_UNITS.find((u) => u.id === unitId);
-  APP_STATE.grammarSession = { unitId, index: 0, correct: 0, total: unit.quiz.length, answered: false, lastChoiceIndex: null };
+  const items = unit.quiz.map((q, index) => ({ unitId, index, q }));
+  APP_STATE.grammarSession = { mode: 'unit', unitId, items, index: 0, correct: 0, total: items.length, answered: false, lastChoiceIndex: null };
+}
+
+function getWrongGrammarItems(progress) {
+  const items = [];
+  GRAMMAR_UNITS.forEach((unit) => {
+    unit.quiz.forEach((q, index) => {
+      const key = unit.id + ':' + index;
+      if ((progress.wrongQuestions[key] || 0) > 0) items.push({ unitId: unit.id, index, q });
+    });
+  });
+  return items;
+}
+
+function startGrammarReviewQuiz(offset) {
+  offset = offset || 0;
+  const allWrong = getWrongGrammarItems(DATA.progress.grammar);
+  const chunk = allWrong.slice(offset, offset + CONFIG.review.batchSize);
+  APP_STATE.grammarSession = {
+    mode: 'review', unitId: null, items: chunk, index: 0, correct: 0, total: chunk.length,
+    answered: false, lastChoiceIndex: null, reviewOffset: offset, reviewTotalWrong: allWrong.length,
+  };
 }
 
 function submitGrammarAnswer(choiceIndex) {
   const session = APP_STATE.grammarSession;
   if (!session || session.answered) return;
-  const unit = GRAMMAR_UNITS.find((u) => u.id === session.unitId);
-  const q = unit.quiz[session.index];
-  if (choiceIndex === q.answer) session.correct++;
+  const item = session.items[session.index];
+  if (choiceIndex === item.q.answer) {
+    session.correct++;
+  } else {
+    const key = item.unitId + ':' + item.index;
+    DATA.progress.grammar.wrongQuestions[key] = (DATA.progress.grammar.wrongQuestions[key] || 0) + 1;
+  }
   session.answered = true;
   session.lastChoiceIndex = choiceIndex;
+  save(DATA);
 }
 
 function finishGrammarQuiz() {
   const session = APP_STATE.grammarSession;
-  const score = session.correct / session.total;
-  const prev = DATA.progress.grammar.unitStatus[session.unitId] || { completed: false, bestScore: 0, attempts: 0, lastScore: 0 };
-  DATA.progress.grammar.unitStatus[session.unitId] = {
-    completed: true,
-    bestScore: Math.max(prev.bestScore, score),
-    attempts: prev.attempts + 1,
-    lastScore: score,
-  };
-  recordDailyActivity(DATA, { grammarQuestionsAnswered: session.total, grammarUnitsCompleted: [session.unitId] });
+  const score = session.total ? session.correct / session.total : 0;
+  if (session.mode === 'unit') {
+    const prev = DATA.progress.grammar.unitStatus[session.unitId] || { completed: false, bestScore: 0, attempts: 0, lastScore: 0 };
+    DATA.progress.grammar.unitStatus[session.unitId] = {
+      completed: true,
+      bestScore: Math.max(prev.bestScore, score),
+      attempts: prev.attempts + 1,
+      lastScore: score,
+    };
+    recordDailyActivity(DATA, { grammarQuestionsAnswered: session.total, grammarUnitsCompleted: [session.unitId] });
+  } else {
+    recordDailyActivity(DATA, { grammarQuestionsAnswered: session.total });
+  }
   const streakInfo = calcCurrentStreak(DATA.progress.dailyLog, new Date());
   const milestone = checkStreakMilestone(DATA, streakInfo, CONFIG);
   if (milestone) APP_STATE.pendingCelebration = milestone;
@@ -785,13 +832,12 @@ function finishGrammarQuiz() {
 
 function advanceGrammarQuestion() {
   const session = APP_STATE.grammarSession;
-  const unit = GRAMMAR_UNITS.find((u) => u.id === session.unitId);
   session.index++;
   session.answered = false;
   session.lastChoiceIndex = null;
-  if (session.index >= unit.quiz.length) {
+  if (session.index >= session.items.length) {
     finishGrammarQuiz();
-    location.hash = `#/grammar/${unit.id}/result`;
+    location.hash = session.mode === 'review' ? '#/grammar/review/result' : `#/grammar/${session.unitId}/result`;
   } else {
     render();
   }
@@ -1280,7 +1326,10 @@ function renderGrammarList(app) {
         <strong>${u.title}</strong><br>${statusHtml}
       </a>`;
   }).join('');
-  app.innerHTML = `<h1>文法ユニット</h1>${itemsHtml}<div class="actionbar"><a class="btn secondary" href="#/grammar/stats">統計を見る</a><a class="btn secondary" href="#/menu">メニューに戻る</a></div>`;
+  const wrongCount = getWrongGrammarItems(DATA.progress.grammar).length;
+  app.innerHTML = `<h1>文法ユニット</h1>${itemsHtml}
+    <button class="btn secondary" data-action="startGrammarReview">苦手問題を復習する（${wrongCount}問）</button>
+    <div class="actionbar"><a class="btn secondary" href="#/grammar/stats">統計を見る</a><a class="btn secondary" href="#/menu">メニューに戻る</a></div>`;
 }
 
 function renderGrammarStats(app) {
@@ -1300,13 +1349,24 @@ function formatExplanationPoints(text) {
   return text.split('。').map((s) => s.trim()).filter(Boolean).map((s) => `<li>${s}。</li>`).join('');
 }
 
+function buildExampleSentenceHtml(q) {
+  const answerText = q.choices[q.answer];
+  return q.q.replace('___', `<strong>${answerText}</strong>`);
+}
+
 function renderGrammarUnit(app, unitId) {
   const unit = GRAMMAR_UNITS.find((u) => u.id === unitId);
+  if (!unit) { location.hash = '#/grammar'; return; }
+  const examplesHtml = unit.quiz.map((q) => `<li>${buildExampleSentenceHtml(q)}<br><span class="muted">${q.note}</span></li>`).join('');
   app.innerHTML = `
     <h1>${unit.title}</h1>
     <div class="card">
       <h2>📖 ポイント</h2>
       <ul class="explanation-list">${formatExplanationPoints(unit.explanation)}</ul>
+    </div>
+    <div class="card">
+      <h2>✏️ 例文</h2>
+      <ul class="explanation-list">${examplesHtml}</ul>
     </div>
     <div class="actionbar"><button class="btn" data-action="startGrammarQuiz" data-unit-id="${unit.id}">クイズを始める（全${unit.quiz.length}問）</button>
     <a class="btn secondary" href="#/grammar">ユニット一覧に戻る</a></div>
@@ -1315,12 +1375,24 @@ function renderGrammarUnit(app, unitId) {
 
 function renderGrammarQuiz(app, unitId) {
   let session = APP_STATE.grammarSession;
-  if (!session || session.unitId !== unitId) {
-    startGrammarQuiz(unitId);
+  const needsRestart = !session
+    || (unitId === 'review' && session.mode !== 'review')
+    || (unitId !== 'review' && (session.mode !== 'unit' || session.unitId !== unitId));
+  if (needsRestart) {
+    if (unitId === 'review') startGrammarReviewQuiz(0); else startGrammarQuiz(unitId);
     session = APP_STATE.grammarSession;
   }
-  const unit = GRAMMAR_UNITS.find((u) => u.id === unitId);
-  const q = unit.quiz[session.index];
+  if (session.items.length === 0) {
+    app.innerHTML = `
+      <h1>復習モード</h1>
+      <div class="card"><p class="muted">間違えた文法問題はまだありません。まずは通常のクイズに挑戦してみましょう。</p></div>
+      <div class="actionbar"><a class="btn secondary" href="#/grammar">ユニット一覧に戻る</a></div>
+    `;
+    return;
+  }
+  const item = session.items[session.index];
+  const unit = GRAMMAR_UNITS.find((u) => u.id === item.unitId);
+  const q = item.q;
   const choicesHtml = q.choices.map((c, i) => {
     let cls = 'choice-btn';
     if (session.answered) {
@@ -1329,9 +1401,10 @@ function renderGrammarQuiz(app, unitId) {
     }
     return `<button class="${cls}" data-action="chooseGrammarAnswer" data-index="${i}" ${session.answered ? 'disabled' : ''}>${c}</button>`;
   }).join('');
-  const progressPct = Math.round((session.index / unit.quiz.length) * 100);
+  const progressPct = Math.round((session.index / session.items.length) * 100);
+  const titleLabel = session.mode === 'review' ? `復習モード（${unit.title}）` : unit.title;
   app.innerHTML = `
-    <h1>${unit.title}（${session.index + 1}/${unit.quiz.length}）</h1>
+    <h1>${titleLabel}（${session.index + 1}/${session.items.length}）</h1>
     <div class="progress"><div class="progress-fill" style="width:${progressPct}%"></div></div>
     <div class="card"><p>${q.q}</p></div>
     ${choicesHtml}
@@ -1341,6 +1414,24 @@ function renderGrammarQuiz(app, unitId) {
 }
 
 function renderGrammarResult(app, unitId) {
+  if (unitId === 'review') {
+    const session = APP_STATE.grammarSession;
+    const remaining = session.reviewTotalWrong - (session.reviewOffset + session.items.length);
+    app.innerHTML = `
+      <h1>復習モード：結果</h1>
+      <div class="card center">
+        <p style="font-size:2rem; font-weight:700;">${session.correct}/${session.total}</p>
+        <p class="muted">残り ${Math.max(0, remaining)}問</p>
+      </div>
+      <div class="actionbar">
+        ${remaining > 0
+          ? `<button class="btn" data-action="continueGrammarReview" data-offset="${session.reviewOffset + session.items.length}">次のセットに進む</button>`
+          : `<p class="center muted">お疲れさまでした、苦手問題は以上です！</p>`}
+        <a class="btn secondary" href="#/grammar">ユニット一覧に戻る</a>
+      </div>
+    `;
+    return;
+  }
   const status = DATA.progress.grammar.unitStatus[unitId];
   const unit = GRAMMAR_UNITS.find((u) => u.id === unitId);
   app.innerHTML = `
@@ -1366,6 +1457,7 @@ function renderVocabHome(app) {
     </div>
     <button class="btn" data-action="startVocabFlashcards">フラッシュカード</button>
     <button class="btn secondary" data-action="startVocabQuiz">10問クイズ</button>
+    <button class="btn secondary" data-action="startVocabReview">苦手を復習する（${wrongWordsCount}語）</button>
     <div class="actionbar">
       <a class="btn secondary" href="#/vocab/stats">統計を見る</a>
       <a class="btn secondary" href="#/menu">メニューに戻る</a>
@@ -1414,6 +1506,14 @@ function renderVocabQuiz(app) {
     startVocabQuiz(CONFIG.menuRules.vocabQuestionCountPerBlock);
     session = APP_STATE.vocabSession;
   }
+  if (session.questions.length === 0) {
+    app.innerHTML = `
+      <h1>${session.mode === 'review' ? '復習モード' : '語彙クイズ'}</h1>
+      <div class="card"><p class="muted">苦手な単語はまだありません。まずは通常のクイズに挑戦してみましょう。</p></div>
+      <div class="actionbar"><a class="btn secondary" href="#/vocab">語彙メニューに戻る</a></div>
+    `;
+    return;
+  }
   const q = session.questions[session.index];
   const choicesHtml = q.choices.map((c, i) => {
     let cls = 'choice-btn';
@@ -1425,7 +1525,7 @@ function renderVocabQuiz(app) {
   }).join('');
   const progressPct = Math.round((session.index / session.questions.length) * 100);
   app.innerHTML = `
-    <h1>語彙クイズ（${session.index + 1}/${session.questions.length}）</h1>
+    <h1>${session.mode === 'review' ? '復習モード' : '語彙クイズ'}（${session.index + 1}/${session.questions.length}）</h1>
     <div class="progress"><div class="progress-fill" style="width:${progressPct}%"></div></div>
     <div class="card center" style="font-size:1.5rem;">${q.word.w}</div>
     ${choicesHtml}
@@ -1439,12 +1539,18 @@ function renderVocabResult(app) {
   const rows = session.results.map((r) => `
     <div class="rank-row"><span>${r.word.w}</span><span class="muted">${r.isCorrect ? '○' : '× (' + r.word.m + ')'}</span></div>
   `).join('');
+  const isReview = session.mode === 'review';
+  const remaining = isReview ? session.reviewTotalWrong - (session.reviewOffset + session.questions.length) : 0;
   app.innerHTML = `
-    <h1>語彙クイズ結果</h1>
+    <h1>${isReview ? '復習モード：結果' : '語彙クイズ結果'}</h1>
     <div class="card center"><p style="font-size:2rem; font-weight:700;">${session.correct}/${session.questions.length}</p></div>
     <div class="card">${rows}</div>
     <div class="actionbar">
-      <button class="btn secondary" data-action="startVocabQuiz">もう一度</button>
+      ${isReview
+        ? (remaining > 0
+            ? `<button class="btn" data-action="continueVocabReview" data-offset="${session.reviewOffset + session.questions.length}">次のセットに進む（残り${remaining}語）</button>`
+            : `<p class="center muted">お疲れさまでした、苦手単語は以上です！</p>`)
+        : `<button class="btn secondary" data-action="startVocabQuiz">もう一度</button>`}
       <a class="btn" href="#/vocab">語彙メニューに戻る</a>
     </div>
   `;
@@ -1522,15 +1628,21 @@ const ACTIONS = {
   reportP7b: (d) => { setP7bSelfReport(d.status); render(); },
   regenerateMenu: () => { APP_STATE.weeklyMenu = null; render(); },
   startGrammarQuiz: (d) => { startGrammarQuiz(d.unitId); location.hash = `#/grammar/${d.unitId}/quiz`; },
+  startGrammarReview: () => { startGrammarReviewQuiz(0); location.hash = '#/grammar/review/quiz'; render(); },
+  continueGrammarReview: (d) => { startGrammarReviewQuiz(Number(d.offset)); location.hash = '#/grammar/review/quiz'; render(); },
   chooseGrammarAnswer: (d) => { submitGrammarAnswer(Number(d.index)); render(); },
   nextGrammarQuestion: () => { advanceGrammarQuestion(); },
   quitGrammarQuiz: () => {
-    const unitId = APP_STATE.grammarSession ? APP_STATE.grammarSession.unitId : null;
+    const session = APP_STATE.grammarSession;
+    const isReview = session && session.mode === 'review';
+    const unitId = session ? session.unitId : null;
     APP_STATE.grammarSession = null;
-    location.hash = unitId ? `#/grammar/${unitId}` : '#/grammar';
+    location.hash = isReview ? '#/grammar' : (unitId ? `#/grammar/${unitId}` : '#/grammar');
   },
   startVocabFlashcards: () => { startFlashcardSession(20); location.hash = '#/vocab/flashcards'; },
   startVocabQuiz: () => { startVocabQuiz(CONFIG.menuRules.vocabQuestionCountPerBlock); location.hash = '#/vocab/quiz'; render(); },
+  startVocabReview: () => { startVocabReviewQuiz(0); location.hash = '#/vocab/quiz'; render(); },
+  continueVocabReview: (d) => { startVocabReviewQuiz(Number(d.offset)); location.hash = '#/vocab/quiz'; render(); },
   chooseVocabAnswer: (d) => { submitVocabAnswer(Number(d.index)); render(); },
   nextVocabQuestion: () => { advanceVocabQuestion(); },
   quitVocabQuiz: () => { APP_STATE.vocabSession = null; location.hash = '#/vocab'; },
