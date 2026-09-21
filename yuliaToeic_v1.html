@@ -110,6 +110,57 @@ details p, details li{ font-size:0.875rem; }
 .bottom-nav-icon{ font-size:1.25rem; }
 .bottom-nav-item.active{ color:var(--primary); font-weight:700; }
 #app.has-bottom-nav .actionbar{ bottom:calc(72px + env(safe-area-inset-bottom)); }
+
+/* ---- ゲーム(ペット育成・XP・ミッション・コンボ) ---- */
+.pet-card{ text-align:center; padding:18px 16px 16px; }
+.pet-top{ display:flex; justify-content:space-between; align-items:center; font-weight:700; font-size:0.875rem; }
+.pet-level{ color:var(--primary); }
+.pet-streak{ color:var(--accent-warm-dark); }
+.pet-avatar{ position:relative; display:inline-block; border:none; background:none; padding:4px 12px; cursor:pointer;
+  font-size:4.5rem; line-height:1.1; animation:pet-idle 2.4s ease-in-out infinite; }
+.pet-avatar.mood-sad{ filter:grayscale(.45); animation-duration:4s; }
+.pet-avatar.bounce{ animation:pet-bounce .5s ease-out; }
+.pet-accessory{ position:absolute; top:-6px; right:0; font-size:1.75rem; }
+@keyframes pet-idle{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-5px); } }
+@keyframes pet-bounce{ 0%{ transform:scale(1); } 30%{ transform:scale(1.18,.85); } 60%{ transform:translateY(-16px) scale(.95,1.08); } 100%{ transform:none; } }
+.pet-name{ font-weight:700; margin:2px 0 0; }
+.pet-rename{ border:none; background:none; font-size:0.875rem; cursor:pointer; padding:4px; }
+.pet-speech{ display:inline-block; background:rgba(128,128,128,.1); border-radius:14px; padding:6px 14px; margin:6px 0 12px; font-size:0.9375rem; }
+.xp-bar{ height:12px; background:rgba(128,128,128,.2); border-radius:6px; overflow:hidden; margin:0 0 4px; }
+.xp-fill{ height:100%; background:linear-gradient(90deg, var(--accent-warm), var(--primary)); border-radius:6px; }
+.xp-fill.grow{ animation:xp-grow 1s ease-out both; }
+@keyframes xp-grow{ from{ width:var(--from); } to{ width:var(--to); } }
+.btn-feed{ margin-top:12px; min-height:56px; font-size:1.0625rem; background:linear-gradient(135deg, var(--accent-warm), var(--accent-warm-dark));
+  box-shadow:0 6px 16px rgba(232,128,74,.35); }
+.mission-row{ display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid rgba(128,128,128,.15); text-decoration:none; }
+.mission-row:last-of-type{ border-bottom:none; }
+.mission-label{ flex:1; }
+.mission-row.done .mission-label{ color:var(--muted); text-decoration:line-through; }
+.home-menu > summary{ font-size:0.9375rem; margin:0; }
+.home-menu[open] > summary{ margin-bottom:14px; }
+.home-menu .card{ box-shadow:none; background:rgba(128,128,128,.07); }
+.quiz-hud{ display:flex; justify-content:space-between; font-weight:700; font-size:0.875rem; margin:-6px 0 10px; min-height:1.3em; }
+.quiz-hud .combo{ color:var(--accent-warm-dark); }
+.quiz-hud .xp{ color:var(--primary); }
+.combo-pop{ text-align:center; font-weight:800; font-size:1.375rem; color:var(--accent-warm-dark); margin:4px 0 8px;
+  animation:combo-pop .45s cubic-bezier(.2,1.6,.4,1) both; }
+@keyframes combo-pop{ from{ transform:scale(.4); opacity:0; } to{ transform:scale(1); opacity:1; } }
+.choice-btn.correct{ animation:choice-pop .35s ease-out; }
+@keyframes choice-pop{ 0%{ transform:scale(1); } 40%{ transform:scale(1.04); } 100%{ transform:scale(1); } }
+.game-toast{ position:fixed; top:calc(12px + env(safe-area-inset-top)); left:50%; transform:translateX(-50%); z-index:20;
+  background:var(--success); color:#fff; font-weight:700; font-size:0.875rem; padding:10px 18px; border-radius:999px;
+  box-shadow:0 6px 18px rgba(0,0,0,.2); animation:toast 2.6s ease-in-out both; pointer-events:none; white-space:nowrap; }
+@keyframes toast{ 0%{ opacity:0; transform:translate(-50%,-12px); } 12%,80%{ opacity:1; transform:translate(-50%,0); } 100%{ opacity:0; transform:translate(-50%,-12px); } }
+.confetti{ position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:15; }
+.confetti span{ position:absolute; top:-12px; width:8px; height:14px; border-radius:2px; opacity:0; animation:confetti-fall 1.8s ease-in forwards; }
+@keyframes confetti-fall{ 0%{ opacity:1; transform:translateY(0) rotate(0); } 100%{ opacity:0; transform:translateY(100vh) rotate(720deg); } }
+.game-result{ text-align:center; }
+.game-result .xp-gain{ font-size:1.5rem; font-weight:800; color:var(--primary); margin:0; }
+.celebration-card .pet-evolve{ font-size:3.5rem; margin:4px 0 8px; }
+@media (prefers-reduced-motion: reduce){
+  .pet-avatar, .pet-avatar.bounce, .xp-fill.grow, .combo-pop, .choice-btn.correct, .confetti span, .game-toast{ animation:none; }
+  .confetti{ display:none; }
+}
 </style>
 </head>
 <body>
@@ -231,6 +282,43 @@ const CONFIG = {
     { key: 'xlarge', label: '特大', rootPx: 22 },
   ],
   review: { batchSize: 10 },
+  game: {
+    xpPerCorrect: 10,
+    xpPerWrong: 2, // 間違えても少しだけXPが入る(挫折させないため)
+    comboBonuses: [ { combo: 3, xp: 5 }, { combo: 5, xp: 10 }, { combo: 10, xp: 20 } ],
+    confettiCombos: [5, 10],
+    quickQuizCount: 5,
+    // レベルnからn+1に上がるのに必要なXP = levelBaseXp + levelStepXp*(n-1)
+    levelBaseXp: 50,
+    levelStepXp: 30,
+    missionsPerDay: 3,
+    missionBonusXp: 50,
+    petStages: [
+      { minLevel: 1, key: 'egg', emoji: '🥚', name: 'たまご' },
+      { minLevel: 3, key: 'kitten', emoji: '🐱', name: 'こねこ' },
+      { minLevel: 8, key: 'cat', emoji: '🐈', name: 'ねこ' },
+      { minLevel: 15, key: 'fancy', emoji: '🐈', name: 'おしゃれねこ', accessory: '🎀' },
+      { minLevel: 25, key: 'master', emoji: '🐈', name: 'TOEICマスターねこ', accessory: '👑' },
+    ],
+    // event: onAnswer/onSessionCompleteが発火するイベント名。同じgroup(未指定ならevent)のミッションは1日に1つまで。
+    missionTemplates: [
+      { id: 'vocab15', label: '単語を15問解く', event: 'vocabAnswer', goal: 15, href: '#/vocab' },
+      { id: 'grammar5', label: '文法を5問解く', event: 'grammarAnswer', goal: 5, href: '#/grammar', group: 'grammar' },
+      { id: 'correct20', label: '20問正解する', event: 'correct', goal: 20 },
+      { id: 'combo3', label: '3コンボを出す', event: 'combo', goal: 3 },
+      { id: 'combo5', label: '5コンボを出す', event: 'combo', goal: 5 },
+      { id: 'quick2', label: '1分クイズを2回やる', event: 'quickDone', goal: 2 },
+      { id: 'grammarUnit', label: '文法を1ユニットやる', event: 'grammarUnitDone', goal: 1, href: '#/grammar', group: 'grammar' },
+      { id: 'review5', label: '苦手を5問復習する', event: 'reviewAnswer', goal: 5, href: '#/vocab', requiresWrong: true },
+    ],
+    moodLines: {
+      happy: ['きょうもえらい！', 'ごはんおいしかった〜', 'いっしょにがんばろ！', 'つよくなってきたね'],
+      hungry: ['おなかすいた…', 'ごはんまだかな？', '1分だけあそぼ？', 'きょうもきてくれた！'],
+      sad: ['さみしかったよ…', 'おかえり！まってたよ', 'ひさしぶり！ごはんちょうだい'],
+      egg: ['（もぞもぞ…）', '（あたたかい…ごはんで育つみたい）', '（なにか聞こえる…）'],
+      tap: ['にゃ！', 'えへへ', 'くすぐったい〜', 'もっとあそぼ！', 'がんばってるね'],
+    },
+  },
 };
 
 /* ==================== 2. BUILTIN_VOCAB (TSL 1,258語 / CC BY-SA 4.0由来・独自日本語訳) ==================== */
@@ -581,8 +669,10 @@ const DEFAULT_DATA = {
     grammar: { unitStatus: {}, wrongQuestions: {} },
     dailyLog: {},
     milestoneState: { streakStartDate: null, celebrated: [] },
+    // levelはxpから毎回計算する(保存しない)ので、xpだけが正。
+    game: { xp: 0, initialized: false, petName: '', bestCombo: 0, missions: { date: null, items: [], bonusClaimed: false } },
   },
-  settings: { fontScale: 'medium' },
+  settings: { fontScale: 'medium', soundOn: true },
   meta: { schemaVersion: 1 },
 };
 
@@ -600,7 +690,9 @@ function mergeWithDefaults(parsed) {
     grammar: Object.assign({}, base.progress.grammar, parsed.progress && parsed.progress.grammar),
     dailyLog: Object.assign({}, base.progress.dailyLog, parsed.progress && parsed.progress.dailyLog),
     milestoneState: Object.assign({}, base.progress.milestoneState, parsed.progress && parsed.progress.milestoneState),
+    game: Object.assign({}, base.progress.game, parsed.progress && parsed.progress.game),
   };
+  merged.settings = Object.assign({}, base.settings, parsed.settings);
   merged.history = parsed.history || base.history;
   return merged;
 }
@@ -623,6 +715,7 @@ let DATA;
 let APP_STATE = {
   vocabSession: null, flashSession: null, grammarSession: null, diagnosis: null, weeklyMenu: null,
   selectedDayIndex: null, calendarYear: null, calendarMonth: null, selectedCalendarDay: null, pendingCelebration: null,
+  gameOverlays: [], gameToast: null, confetti: false, petTapLine: null, petBounce: false, homeMenuOpen: false,
 };
 
 /* ==================== 5. 診断エンジン ==================== */
@@ -799,11 +892,12 @@ function buildQuizQuestion(targetWord, pool) {
   return { word: targetWord, choices, answerIndex };
 }
 
-function startVocabQuiz(count) {
+// mode: 'normal'(10問) | 'quick'(1分クイズ=ペットのごはん)
+function startVocabQuiz(count, mode) {
   count = count || CONFIG.menuRules.vocabQuestionCountPerBlock;
   const words = pickQuizWords(count, DATA.progress, BUILTIN_VOCAB);
   const questions = words.map((w) => buildQuizQuestion(w, BUILTIN_VOCAB));
-  APP_STATE.vocabSession = { questions, index: 0, correct: 0, results: [], answered: false, lastChoiceIndex: null, mode: 'normal' };
+  APP_STATE.vocabSession = { questions, index: 0, correct: 0, results: [], answered: false, lastChoiceIndex: null, mode: mode || 'normal' };
 }
 
 function getWrongVocabWords(progress, pool) {
@@ -837,6 +931,7 @@ function submitVocabAnswer(choiceIndex) {
   session.answered = true;
   session.lastChoiceIndex = choiceIndex;
   recordDailyActivity(DATA, { vocabQuestionsAnswered: 1 });
+  onAnswer(session, isCorrect, 'vocab');
   save(DATA);
 }
 
@@ -848,6 +943,7 @@ function advanceVocabQuestion() {
   if (session.index >= session.questions.length) {
     DATA.progress.vocab.quizHistory.push({ date: getTodayKey(), correct: session.correct, total: session.questions.length });
     recordDailyActivity(DATA, { vocabQuizzesCompleted: 1 });
+    onSessionComplete(session, 'vocab');
     const streakInfo = calcCurrentStreak(DATA.progress.dailyLog, new Date());
     const milestone = checkStreakMilestone(DATA, streakInfo, CONFIG);
     if (milestone) APP_STATE.pendingCelebration = milestone;
@@ -904,7 +1000,8 @@ function submitGrammarAnswer(choiceIndex) {
   const session = APP_STATE.grammarSession;
   if (!session || session.answered) return;
   const item = session.items[session.index];
-  if (choiceIndex === item.q.answer) {
+  const isCorrect = choiceIndex === item.q.answer;
+  if (isCorrect) {
     session.correct++;
   } else {
     const key = item.unitId + ':' + item.index;
@@ -912,6 +1009,7 @@ function submitGrammarAnswer(choiceIndex) {
   }
   session.answered = true;
   session.lastChoiceIndex = choiceIndex;
+  onAnswer(session, isCorrect, 'grammar');
   save(DATA);
 }
 
@@ -930,6 +1028,7 @@ function finishGrammarQuiz() {
   } else {
     recordDailyActivity(DATA, { grammarQuestionsAnswered: session.total });
   }
+  onSessionComplete(session, 'grammar');
   const streakInfo = calcCurrentStreak(DATA.progress.dailyLog, new Date());
   const milestone = checkStreakMilestone(DATA, streakInfo, CONFIG);
   if (milestone) APP_STATE.pendingCelebration = milestone;
@@ -1066,6 +1165,196 @@ function computeGrammarStats(progress, units) {
   };
 }
 
+/* ==================== 9.6 ゲーム(XP／レベル／ペット／ミッション／コンボ) ==================== */
+// --- 純粋関数(DATA・APP_STATE・new Date()に触れない) ---
+function xpToNextLevel(level, gameConfig) {
+  return gameConfig.levelBaseXp + gameConfig.levelStepXp * (level - 1);
+}
+
+function calcLevelInfo(xp, gameConfig) {
+  let level = 1;
+  let rest = xp;
+  while (rest >= xpToNextLevel(level, gameConfig)) {
+    rest -= xpToNextLevel(level, gameConfig);
+    level++;
+  }
+  return { level, current: rest, needed: xpToNextLevel(level, gameConfig) };
+}
+
+function getPetStage(level, gameConfig) {
+  return gameConfig.petStages.filter((s) => level >= s.minLevel).pop();
+}
+
+// 今日学習済み=happy／最後の学習が昨日(または未学習)=hungry／2日以上空いた=sad。罰は与えず表情が変わるだけ。
+function getPetMood(dailyLog, today) {
+  const cursor = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  if (dailyLog[formatLocalDateKey(cursor)]) return 'happy';
+  const keys = Object.keys(dailyLog);
+  if (keys.length === 0) return 'hungry';
+  cursor.setDate(cursor.getDate() - 1);
+  return dailyLog[formatLocalDateKey(cursor)] ? 'hungry' : 'sad';
+}
+
+function hashString(s) {
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+// シード付き乱数(mulberry32)。同じ日付なら同じミッションになるようにするため。
+function seededRandom(seed) {
+  let a = seed >>> 0;
+  return function () {
+    a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function generateDailyMissions(dateKey, gameConfig, opts) {
+  const rand = seededRandom(hashString(dateKey));
+  const pool = gameConfig.missionTemplates.filter((t) => !t.requiresWrong || opts.hasWrong);
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  const usedGroups = new Set();
+  const items = [];
+  for (const t of pool) {
+    if (items.length >= gameConfig.missionsPerDay) break;
+    const group = t.group || t.event;
+    if (usedGroups.has(group)) continue;
+    usedGroups.add(group);
+    items.push({ id: t.id, progress: 0, goal: t.goal, done: false });
+  }
+  return items;
+}
+
+function findMissionTemplate(id) {
+  return CONFIG.game.missionTemplates.find((t) => t.id === id);
+}
+
+function pickDailyLine(lines, seedText) {
+  return lines[hashString(seedText) % lines.length];
+}
+
+// --- 状態を更新する関数 ---
+// 既存ユーザーのこれまでの頑張りを初回だけXPに換算する。
+function initGameState(data) {
+  const g = data.progress.game;
+  if (g.initialized) return;
+  const seenTotal = Object.values(data.progress.vocab.seenCounts).reduce((s, c) => s + c, 0);
+  const unitsDone = Object.values(data.progress.grammar.unitStatus).filter((s) => s && s.completed).length;
+  g.xp = seenTotal * 2 + unitsDone * 30;
+  g.initialized = true;
+}
+
+function ensureTodayMissions(data, now) {
+  const key = getTodayKey(now);
+  const g = data.progress.game;
+  if (g.missions.date !== key) {
+    const hasWrong = Object.values(data.progress.vocab.wrongCounts).some((c) => c > 0)
+      || Object.values(data.progress.grammar.wrongQuestions).some((c) => c > 0);
+    g.missions = { date: key, items: generateDailyMissions(key, CONFIG.game, { hasWrong }), bonusClaimed: false };
+  }
+  return g.missions;
+}
+
+function addXp(amount) {
+  const g = DATA.progress.game;
+  const before = calcLevelInfo(g.xp, CONFIG.game);
+  g.xp += amount;
+  const after = calcLevelInfo(g.xp, CONFIG.game);
+  if (after.level > before.level) {
+    const fromStage = getPetStage(before.level, CONFIG.game);
+    const toStage = getPetStage(after.level, CONFIG.game);
+    APP_STATE.gameOverlays.push({ type: 'levelUp', level: after.level, fromStage: fromStage.key !== toStage.key ? fromStage : null, toStage });
+    APP_STATE.confetti = true;
+  }
+}
+
+// event: missionTemplates[].eventと対応。comboだけは「これまでの最大値」、それ以外は加算。
+function advanceMissions(event, value) {
+  const missions = ensureTodayMissions(DATA, new Date());
+  missions.items.forEach((item) => {
+    const t = findMissionTemplate(item.id);
+    if (!t || t.event !== event || item.done) return;
+    item.progress = event === 'combo' ? Math.max(item.progress, value) : item.progress + value;
+    if (item.progress >= item.goal) {
+      item.progress = item.goal;
+      item.done = true;
+      APP_STATE.gameToast = `✅ ミッション達成：${t.label}`;
+    }
+  });
+  if (!missions.bonusClaimed && missions.items.length > 0 && missions.items.every((i) => i.done)) {
+    missions.bonusClaimed = true;
+    APP_STATE.gameOverlays.push({ type: 'missionBonus', xp: CONFIG.game.missionBonusXp });
+    APP_STATE.confetti = true;
+    addXp(CONFIG.game.missionBonusXp);
+  }
+}
+
+// 1問回答するたびに呼ぶ。kind: 'vocab' | 'grammar'
+function onAnswer(session, isCorrect, kind) {
+  const cfg = CONFIG.game;
+  const g = DATA.progress.game;
+  session.combo = isCorrect ? (session.combo || 0) + 1 : 0;
+  const bonus = isCorrect ? cfg.comboBonuses.find((b) => b.combo === session.combo) : null;
+  const gained = (isCorrect ? cfg.xpPerCorrect : cfg.xpPerWrong) + (bonus ? bonus.xp : 0);
+  session.lastXp = gained;
+  session.lastComboBonus = bonus ? bonus.xp : 0;
+  session.xpGained = (session.xpGained || 0) + gained;
+  session.maxCombo = Math.max(session.maxCombo || 0, session.combo);
+  g.bestCombo = Math.max(g.bestCombo, session.combo);
+  if (isCorrect && cfg.confettiCombos.includes(session.combo)) APP_STATE.confetti = true;
+  addXp(gained);
+  advanceMissions(kind === 'vocab' ? 'vocabAnswer' : 'grammarAnswer', 1);
+  if (isCorrect) advanceMissions('correct', 1);
+  if (session.mode === 'review') advanceMissions('reviewAnswer', 1);
+  if (session.combo > 0) advanceMissions('combo', session.combo);
+  playAnswerFeedback(isCorrect, session.combo);
+}
+
+function onSessionComplete(session, kind) {
+  if (kind === 'vocab' && session.mode === 'quick') advanceMissions('quickDone', 1);
+  if (kind === 'grammar' && session.mode === 'unit') advanceMissions('grammarUnitDone', 1);
+}
+
+// --- 効果音(Web Audio APIで合成。音声ファイル不要)と振動 ---
+let audioCtx = null;
+function playTones(freqs, duration) {
+  try {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return;
+    audioCtx = audioCtx || new Ctx();
+    freqs.forEach((f, i) => {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      const t = audioCtx.currentTime + i * 0.09;
+      osc.type = 'sine';
+      osc.frequency.value = f;
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.exponentialRampToValueAtTime(0.18, t + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
+      osc.connect(gain).connect(audioCtx.destination);
+      osc.start(t);
+      osc.stop(t + duration + 0.02);
+    });
+  } catch (e) { /* 音が鳴らなくてもアプリは動かす */ }
+}
+
+function playAnswerFeedback(isCorrect, combo) {
+  if (!DATA.settings.soundOn) return;
+  if (isCorrect) playTones(combo >= 5 ? [880, 1175, 1568] : combo >= 3 ? [880, 1175] : [988], 0.16);
+  else playTones([330, 247], 0.18);
+  // iPhoneのSafariはvibrate非対応(音と画面演出で代替)
+  if (navigator.vibrate) navigator.vibrate(isCorrect ? (combo >= 3 ? [15, 40, 15] : 12) : 40);
+}
+
 /* ==================== 10. ルーター ==================== */
 function parseRoute(hash) {
   const path = (hash || '#/input').slice(1);
@@ -1085,6 +1374,9 @@ function render() {
   const app = document.getElementById('app');
   renderRoute(app, root, a, b);
   renderBottomNav(app, root);
+  // クイズ中はレベルアップ等の全画面カードを出さず、結果画面・ホームで見せる(回答の邪魔をしない)
+  const inQuiz = (root === 'vocab' && a === 'quiz') || (root === 'grammar' && b === 'quiz');
+  renderGameEffects(app, inQuiz);
 }
 
 function renderRoute(app, root, a, b) {
@@ -1138,6 +1430,111 @@ function renderBottomNav(app, root) {
 
 /* ==================== 11. 表示ヘルパー ==================== */
 function pct(x) { return x == null ? '—' : Math.round(x * 100) + '%'; }
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function getPetDisplayName() {
+  const stage = getPetStage(calcLevelInfo(DATA.progress.game.xp, CONFIG.game).level, CONFIG.game);
+  return DATA.progress.game.petName ? escapeHtml(DATA.progress.game.petName) : stage.name;
+}
+
+function petAvatarInner(stage) {
+  return `${stage.emoji}${stage.accessory ? `<span class="pet-accessory">${stage.accessory}</span>` : ''}`;
+}
+
+// fromRatioを渡すと、そこから現在値までバーが伸びるアニメーションになる
+function xpBarHtml(info, fromRatio) {
+  const to = Math.round((info.current / info.needed) * 100);
+  if (fromRatio == null) return `<div class="xp-bar"><div class="xp-fill" style="width:${to}%"></div></div>`;
+  const from = Math.max(0, Math.min(to, Math.round(fromRatio * 100)));
+  return `<div class="xp-bar"><div class="xp-fill grow" style="--from:${from}%; --to:${to}%; width:${to}%"></div></div>`;
+}
+
+function quizHudHtml(session) {
+  const combo = session.combo || 0;
+  return `<div class="quiz-hud">
+    <span class="combo">${combo >= 2 ? `🔥 ${combo}コンボ` : ''}</span>
+    <span class="xp">⭐ ${session.xpGained || 0} XP</span>
+  </div>`;
+}
+
+// 回答直後だけ出す「+10 XP」「3 COMBO!」表示
+function answerFeedbackHtml(session) {
+  if (!session.answered || !session.lastXp) return '';
+  if (session.lastComboBonus) {
+    return `<div class="combo-pop">🔥 ${session.combo} COMBO! +${session.lastXp} XP</div>`;
+  }
+  return `<div class="combo-pop" style="font-size:1rem; color:var(--primary);">+${session.lastXp} XP</div>`;
+}
+
+// 結果画面に出すカード。セッションが無い(再読み込み後など)場合は何も出さない。
+function gameResultCardHtml(session) {
+  if (!session || !session.xpGained) return '';
+  const info = calcLevelInfo(DATA.progress.game.xp, CONFIG.game);
+  const stage = getPetStage(info.level, CONFIG.game);
+  const fromRatio = (info.current - session.xpGained) / info.needed; // レベルが上がった場合は負→0から伸びる
+  const ratio = session.questions ? session.correct / session.questions.length : session.correct / session.total;
+  const line = stage.key === 'egg' ? '（たまごがぴくっと動いた！）'
+    : ratio >= 0.8 ? 'おいしかった〜！まんぷく！' : ratio >= 0.5 ? 'ごちそうさま！' : 'もうちょっと食べたいな…';
+  return `
+    <div class="card game-result">
+      <p class="xp-gain">+${session.xpGained} XP</p>
+      ${session.maxCombo >= 2 ? `<p class="muted">最大 ${session.maxCombo} コンボ</p>` : ''}
+      <div class="pet-avatar" style="font-size:3rem;">${petAvatarInner(stage)}</div>
+      <p class="pet-speech">${getPetDisplayName()}「${line}」</p>
+      <p class="muted" style="margin:0 0 4px;">Lv.${info.level}　次のレベルまで あと ${info.needed - info.current} XP</p>
+      ${xpBarHtml(info, fromRatio)}
+    </div>`;
+}
+
+function confettiHtml() {
+  const colors = ['#ff9f6b', '#3b5bfd', '#2f9e44', '#f7c948', '#e5484d', '#b86bff'];
+  const pieces = Array.from({ length: 36 }, (_, i) => {
+    const left = Math.round(Math.random() * 100);
+    const delay = (Math.random() * 0.5).toFixed(2);
+    const dur = (1.4 + Math.random() * 0.9).toFixed(2);
+    return `<span style="left:${left}%; background:${colors[i % colors.length]}; animation-delay:${delay}s; animation-duration:${dur}s;"></span>`;
+  }).join('');
+  return `<div class="confetti" aria-hidden="true">${pieces}</div>`;
+}
+
+function gameOverlayHtml(overlay) {
+  if (overlay.type === 'levelUp') {
+    const evolved = overlay.fromStage;
+    return `
+      <div class="celebration-overlay" data-action="dismissGameOverlay">
+        <div class="celebration-card">
+          <p class="pet-evolve">${petAvatarInner(overlay.toStage)}</p>
+          <p><strong>🎉 Lv.${overlay.level} になった！</strong></p>
+          ${evolved ? `<p><strong>${evolved.name} → ${overlay.toStage.name} に進化！</strong></p>` : ''}
+          <p class="muted">タップでとじる</p>
+        </div>
+      </div>`;
+  }
+  if (overlay.type === 'missionBonus') {
+    return `
+      <div class="celebration-overlay" data-action="dismissGameOverlay">
+        <div class="celebration-card">
+          <p class="emoji">🍰</p>
+          <p><strong>今日のミッション全部クリア！</strong></p>
+          <p>ごちそうボーナス +${overlay.xp} XP</p>
+          <p class="muted">タップでとじる</p>
+        </div>
+      </div>`;
+  }
+  return '';
+}
+
+// 紙吹雪・トーストは1回表示したら消す。全画面カードはタップで閉じるまで残す。
+function renderGameEffects(app, inQuiz) {
+  let html = '';
+  if (APP_STATE.confetti) { html += confettiHtml(); APP_STATE.confetti = false; }
+  if (APP_STATE.gameToast) { html += `<div class="game-toast">${APP_STATE.gameToast}</div>`; APP_STATE.gameToast = null; }
+  if (!inQuiz && APP_STATE.gameOverlays.length > 0) html += gameOverlayHtml(APP_STATE.gameOverlays[0]);
+  if (html) app.insertAdjacentHTML('beforeend', html);
+}
 
 function captureInputForm() {
   const app = document.getElementById('app');
@@ -1358,19 +1755,62 @@ function renderHome(app) {
   const celebration = APP_STATE.pendingCelebration;
   APP_STATE.pendingCelebration = null;
 
+  // --- ペット ---
+  const g = DATA.progress.game;
+  const info = calcLevelInfo(g.xp, CONFIG.game);
+  const stage = getPetStage(info.level, CONFIG.game);
+  const mood = getPetMood(DATA.progress.dailyLog, now);
+  const lines = stage.key === 'egg' ? CONFIG.game.moodLines.egg : CONFIG.game.moodLines[mood];
+  const speech = APP_STATE.petTapLine || pickDailyLine(lines, getTodayKey(now) + mood);
+  const bounce = APP_STATE.petBounce;
+  APP_STATE.petTapLine = null;
+  APP_STATE.petBounce = false;
+
+  // --- 今日のミッション ---
+  const missions = ensureTodayMissions(DATA, now);
+  save(DATA);
+  const doneCount = missions.items.filter((i) => i.done).length;
+  const missionRows = missions.items.map((item) => {
+    const t = findMissionTemplate(item.id);
+    if (!t) return '';
+    const inner = `<span>${item.done ? '✅' : '⬜'}</span><span class="mission-label">${t.label}</span><span class="muted">${item.progress}/${item.goal}</span>`;
+    return t.href && !item.done
+      ? `<a class="mission-row" href="${t.href}">${inner}</a>`
+      : `<div class="mission-row${item.done ? ' done' : ''}">${inner}</div>`;
+  }).join('');
+
   app.innerHTML = `
-    <h1 class="home-title">${DATA.user.name}さんの今日</h1>
-    ${streak.length > 0 ? `<p class="streak-line">🔥 ${streak.length}日連続</p>` : ''}
-    <div class="day-nav">
-      <button class="day-nav-arrow" data-action="shiftHomeDay" data-delta="-1" aria-label="前の日">◀</button>
-      <span class="day-nav-label">${day.day}曜日${idx === todayAppIndex ? '（今日）' : ''}</span>
-      <button class="day-nav-arrow" data-action="shiftHomeDay" data-delta="1" aria-label="次の日">▶</button>
+    <div class="card pet-card">
+      <div class="pet-top">
+        <span class="pet-level">Lv.${info.level}</span>
+        ${streak.length > 0 ? `<span class="pet-streak">🔥 ${streak.length}日連続</span>` : '<span></span>'}
+      </div>
+      <button class="pet-avatar mood-${mood}${bounce ? ' bounce' : ''}" data-action="tapPet" aria-label="ペットをなでる">${petAvatarInner(stage)}</button>
+      <p class="pet-name">${g.petName ? escapeHtml(g.petName) : `${stage.name}<span class="muted">（なまえをつけてね）</span>`}
+        <button class="pet-rename" data-action="renamePet" aria-label="なまえを変える">✏️</button></p>
+      <p class="pet-speech">「${speech}」</p>
+      ${xpBarHtml(info)}
+      <p class="muted" style="margin:0;">次のレベルまで あと ${info.needed - info.current} XP</p>
+      <button class="btn btn-feed" data-action="startQuickQuiz">🍚 1分クイズでごはんをあげる</button>
     </div>
-    <div class="row-flex" style="margin-bottom:14px;">
+    <div class="card">
+      <h2>今日のミッション <span class="muted">${doneCount}/${missions.items.length}</span></h2>
+      ${missionRows}
+      <p class="muted" style="margin:8px 0 0;">${missions.bonusClaimed ? '🍰 今日のごちそうはもらったよ！' : `全部クリアでごちそうボーナス +${CONFIG.game.missionBonusXp} XP 🍰`}</p>
+    </div>
+    <div class="row-flex" style="margin-bottom:12px;">
       <a class="btn secondary" href="#/vocab">語彙をやる</a>
       <a class="btn secondary" href="#/grammar">文法をやる</a>
     </div>
-    ${renderDayBlocksHtml(day.blocks)}
+    <details class="card home-menu"${APP_STATE.homeMenuOpen ? ' open' : ''}>
+      <summary data-action="toggleHomeMenu">📅 今日の学習メニュー（しっかりやりたい日に）</summary>
+      <div class="day-nav">
+        <button class="day-nav-arrow" data-action="shiftHomeDay" data-delta="-1" aria-label="前の日">◀</button>
+        <span class="day-nav-label">${day.day}曜日${idx === todayAppIndex ? '（今日）' : ''}</span>
+        <button class="day-nav-arrow" data-action="shiftHomeDay" data-delta="1" aria-label="次の日">▶</button>
+      </div>
+      ${renderDayBlocksHtml(day.blocks)}
+    </details>
     ${celebration ? `
       <div class="celebration-overlay" data-action="dismissCelebration">
         <div class="celebration-card">
@@ -1436,6 +1876,14 @@ function renderSettings(app) {
       <h2>文字の大きさ</h2>
       <p class="muted">これくらいの大きさで表示されます。</p>
       ${buttonsHtml}
+    </div>
+    <div class="card">
+      <h2>効果音・振動</h2>
+      <p class="muted">正解したときの「ピコン」という音と振動（振動はAndroidのみ）。</p>
+      <div class="segmented">
+        <button class="${DATA.settings.soundOn ? 'active' : ''}" data-action="setSound" data-on="1">オン</button>
+        <button class="${DATA.settings.soundOn ? '' : 'active'}" data-action="setSound" data-on="0">オフ</button>
+      </div>
     </div>
     <div class="actionbar"><a class="btn secondary" href="#/home">ホームに戻る</a></div>
   `;
@@ -1526,8 +1974,10 @@ function renderGrammarQuiz(app, unitId) {
   app.innerHTML = `
     <h1>${titleLabel}（${session.index + 1}/${session.items.length}）</h1>
     <div class="progress"><div class="progress-fill" style="width:${progressPct}%"></div></div>
+    ${quizHudHtml(session)}
     <div class="card"><p>${q.q}</p></div>
     ${choicesHtml}
+    ${answerFeedbackHtml(session)}
     ${session.answered ? `<p class="muted">${q.note}</p><div class="actionbar"><button class="btn" data-action="nextGrammarQuestion">次へ</button></div>` : ''}
     <p class="center" style="margin-top:36px;"><button class="quit-link" data-action="quitGrammarQuiz">✕ 途中でやめる</button></p>
   `;
@@ -1543,6 +1993,7 @@ function renderGrammarResult(app, unitId) {
         <p style="font-size:2rem; font-weight:700;">${session.correct}/${session.total}</p>
         <p class="muted">残り ${Math.max(0, remaining)}問</p>
       </div>
+      ${gameResultCardHtml(session)}
       <div class="actionbar">
         ${remaining > 0
           ? `<button class="btn" data-action="continueGrammarReview" data-offset="${session.reviewOffset + session.items.length}">次のセットに進む</button>`
@@ -1560,6 +2011,7 @@ function renderGrammarResult(app, unitId) {
       <p style="font-size:2rem; font-weight:700;">${Math.round(status.lastScore * 100)}%</p>
       <p class="muted">最高点: ${Math.round(status.bestScore * 100)}%／挑戦回数: ${status.attempts}</p>
     </div>
+    ${APP_STATE.grammarSession && APP_STATE.grammarSession.unitId === unitId ? gameResultCardHtml(APP_STATE.grammarSession) : ''}
     <div class="actionbar">
       <a class="btn secondary" href="#/grammar/${unitId}">もう一度</a>
       <a class="btn" href="#/grammar">ユニット一覧へ</a>
@@ -1644,11 +2096,14 @@ function renderVocabQuiz(app) {
     return `<button class="${cls}" data-action="chooseVocabAnswer" data-index="${i}" ${session.answered ? 'disabled' : ''}>${c}</button>`;
   }).join('');
   const progressPct = Math.round((session.index / session.questions.length) * 100);
+  const titleLabel = session.mode === 'review' ? '復習モード' : session.mode === 'quick' ? '🍚 ごはんタイム' : '語彙クイズ';
   app.innerHTML = `
-    <h1>${session.mode === 'review' ? '復習モード' : '語彙クイズ'}（${session.index + 1}/${session.questions.length}）</h1>
+    <h1>${titleLabel}（${session.index + 1}/${session.questions.length}）</h1>
     <div class="progress"><div class="progress-fill" style="width:${progressPct}%"></div></div>
+    ${quizHudHtml(session)}
     <div class="card center" style="font-size:1.5rem;">${q.word.w}</div>
     ${choicesHtml}
+    ${answerFeedbackHtml(session)}
     ${session.answered ? `<div class="actionbar"><button class="btn" data-action="nextVocabQuestion">次へ</button></div>` : ''}
     <p class="center" style="margin-top:36px;"><button class="quit-link" data-action="quitVocabQuiz">✕ 途中でやめる</button></p>
   `;
@@ -1660,10 +2115,24 @@ function renderVocabResult(app) {
     <div class="rank-row"><span>${r.word.w}</span><span class="muted">${r.isCorrect ? '○' : '× (' + r.word.m + ')'}</span></div>
   `).join('');
   const isReview = session.mode === 'review';
+  const isQuick = session.mode === 'quick';
   const remaining = isReview ? session.reviewTotalWrong - (session.reviewOffset + session.questions.length) : 0;
+  if (isQuick) {
+    app.innerHTML = `
+      <h1>ごはんタイム：${session.correct}/${session.questions.length}問正解</h1>
+      ${gameResultCardHtml(session)}
+      <div class="card">${rows}</div>
+      <div class="actionbar">
+        <button class="btn btn-feed" style="margin-top:0;" data-action="startQuickQuiz">🍚 もう1回（1分）</button>
+        <a class="btn secondary" href="#/home">ホームにもどる</a>
+      </div>
+    `;
+    return;
+  }
   app.innerHTML = `
     <h1>${isReview ? '復習モード：結果' : '語彙クイズ結果'}</h1>
     <div class="card center"><p style="font-size:2rem; font-weight:700;">${session.correct}/${session.questions.length}</p></div>
+    ${gameResultCardHtml(session)}
     <div class="card">${rows}</div>
     <div class="actionbar">
       ${isReview
@@ -1765,7 +2234,35 @@ const ACTIONS = {
   continueVocabReview: (d) => { startVocabReviewQuiz(Number(d.offset)); location.hash = '#/vocab/quiz'; render(); },
   chooseVocabAnswer: (d) => { submitVocabAnswer(Number(d.index)); render(); },
   nextVocabQuestion: () => { advanceVocabQuestion(); },
-  quitVocabQuiz: () => { APP_STATE.vocabSession = null; location.hash = '#/vocab'; },
+  quitVocabQuiz: () => {
+    const wasQuick = APP_STATE.vocabSession && APP_STATE.vocabSession.mode === 'quick';
+    APP_STATE.vocabSession = null;
+    location.hash = wasQuick ? '#/home' : '#/vocab';
+  },
+  startQuickQuiz: () => {
+    startVocabQuiz(CONFIG.game.quickQuizCount, 'quick');
+    // 既にクイズ画面にいる(「もう1回」)場合はhashchangeが起きないので明示的に描画する
+    if (location.hash === '#/vocab/quiz') render(); else location.hash = '#/vocab/quiz';
+  },
+  tapPet: () => {
+    const stage = getPetStage(calcLevelInfo(DATA.progress.game.xp, CONFIG.game).level, CONFIG.game);
+    const lines = stage.key === 'egg' ? CONFIG.game.moodLines.egg : CONFIG.game.moodLines.tap;
+    APP_STATE.petTapLine = lines[Math.floor(Math.random() * lines.length)];
+    APP_STATE.petBounce = true;
+    if (DATA.settings.soundOn) playTones([660, 880], 0.1);
+    render();
+  },
+  renamePet: () => {
+    const name = window.prompt('ペットのなまえは？（10文字まで）', DATA.progress.game.petName || '');
+    if (name == null) return;
+    DATA.progress.game.petName = name.trim().slice(0, 10);
+    save(DATA);
+    render();
+  },
+  // <details>の開閉はブラウザが行うので、再描画後も同じ状態を保つためにフラグだけ反転する
+  toggleHomeMenu: () => { APP_STATE.homeMenuOpen = !APP_STATE.homeMenuOpen; },
+  dismissGameOverlay: () => { APP_STATE.gameOverlays.shift(); render(); },
+  setSound: (d) => { DATA.settings.soundOn = d.on === '1'; save(DATA); render(); },
   flipCard: () => { APP_STATE.flashSession.flipped = !APP_STATE.flashSession.flipped; render(); },
   nextCard: () => { advanceFlashcard(1); },
   prevCard: () => { advanceFlashcard(-1); },
@@ -1796,6 +2293,8 @@ const ACTIONS = {
 if (typeof window !== 'undefined') {
   window.addEventListener('DOMContentLoaded', () => {
     DATA = load();
+    initGameState(DATA);
+    save(DATA);
     applyFontScale(DATA.settings.fontScale);
     document.getElementById('app').addEventListener('click', (e) => {
       const el = e.target.closest('[data-action]');
