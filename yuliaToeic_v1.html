@@ -2316,6 +2316,7 @@ function renderGrammarResult(app, unitId) {
   }
   if (unitId === 'review') {
     const session = APP_STATE.grammarSession;
+    if (!session || session.mode !== 'review') { location.hash = '#/grammar'; return; }
     const remaining = session.reviewTotalWrong - (session.reviewOffset + session.items.length);
     app.innerHTML = `
       <h1>復習モード：結果</h1>
@@ -2335,6 +2336,7 @@ function renderGrammarResult(app, unitId) {
   }
   const status = DATA.progress.grammar.unitStatus[unitId];
   const unit = GRAMMAR_UNITS.find((u) => u.id === unitId);
+  if (!status || !unit) { location.hash = unit ? `#/grammar/${unitId}` : '#/grammar'; return; }
   app.innerHTML = `
     <h1>${unit.title}：結果</h1>
     <div class="card center">
@@ -2487,6 +2489,8 @@ function renderPetResult(app) {
 
 function renderVocabResult(app) {
   const session = APP_STATE.vocabSession;
+  // 結果はメモリ上にしか無いので、再読み込み後は表示できない→ホームへ戻す(真っ白/真っ黒画面の防止)
+  if (!session || session.results.length === 0) { location.hash = '#/home'; return; }
   const rows = session.results.map((r) => `
     <div class="rank-row"><span>${r.word.w}</span><span class="muted">${r.isCorrect ? '○' : '× (' + r.word.m + ')'}</span></div>
   `).join('');
