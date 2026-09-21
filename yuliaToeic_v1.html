@@ -169,7 +169,17 @@ details p, details li{ font-size:0.875rem; }
 @keyframes cat-stretch{ 0%,100%{ transform:none; } 40%,60%{ transform:scale(1.14,.84); } }
 @keyframes cat-hop{ 0%,100%{ transform:none; } 40%{ transform:translateY(-14px); } }
 /* 小道具 */
-.cat-bubble{ position:absolute; top:10px; left:calc(50% + 34px); font-size:1.5rem; font-weight:800; color:var(--primary); animation:combo-pop .4s both; }
+.cat-say{ position:absolute; top:10px; left:50%; z-index:2; max-width:78%; width:max-content; transform:translateX(-50%);
+  background:#fff; color:#3a3346; font-weight:700; font-size:0.875rem; line-height:1.45; padding:6px 14px; border-radius:14px;
+  box-shadow:0 3px 10px rgba(30,20,60,.14); pointer-events:none; animation:say-pop .35s cubic-bezier(.2,1.5,.4,1) both; }
+.cat-say::after{ content:''; position:absolute; left:50%; bottom:-7px; transform:translateX(-50%);
+  border-style:solid; border-width:8px 7px 0 7px; border-color:#fff transparent transparent transparent; }
+/* 小さい舞台では猫の右上に出す(しっぽは左下向き) */
+.cat-say.side{ top:8px; left:calc(50% + 30px); transform:none; max-width:44%; animation-name:say-pop-side; }
+.cat-say.side::after{ left:10px; transform:none; bottom:-7px; border-width:8px 10px 0 0; }
+.cat-say.wrong{ color:var(--primary); }
+@keyframes say-pop{ from{ opacity:0; transform:translateX(-50%) scale(.6); } to{ opacity:1; transform:translateX(-50%) scale(1); } }
+@keyframes say-pop-side{ from{ opacity:0; transform:scale(.6); transform-origin:0 100%; } to{ opacity:1; transform:scale(1); } }
 .heart{ position:absolute; bottom:60%; font-size:1.25rem; opacity:0; pointer-events:none; animation:heart-float 1.5s ease-out forwards; }
 @keyframes heart-float{ 0%{ opacity:0; transform:translateY(0) scale(.5); } 20%{ opacity:1; } 100%{ opacity:0; transform:translateY(-70px) scale(1.1); } }
 .bowl{ position:absolute; bottom:8px; left:calc(50% + 52px); width:56px; height:22px; background:#6b9bd2; border-radius:4px 4px 28px 28px; }
@@ -196,7 +206,8 @@ details p, details li{ font-size:0.875rem; }
 .care-check{ position:absolute; top:4px; right:6px; font-size:0.875rem; }
 .pet-name{ font-weight:700; margin:2px 0 0; }
 .pet-rename{ border:none; background:none; font-size:0.875rem; cursor:pointer; padding:4px; }
-.pet-speech{ display:inline-block; background:rgba(128,128,128,.1); border-radius:14px; padding:6px 14px; margin:6px 0 12px; font-size:0.9375rem; }
+.pet-card .cat-stage{ height:218px; }
+.pet-card .cat-say{ top:16px; font-size:0.9375rem; }
 .xp-bar{ height:12px; background:rgba(128,128,128,.2); border-radius:6px; overflow:hidden; margin:0 0 4px; }
 .xp-fill{ height:100%; background:linear-gradient(90deg, var(--accent-warm), var(--primary)); border-radius:6px; }
 .xp-fill.grow{ animation:xp-grow 1s ease-out both; }
@@ -313,7 +324,7 @@ details p, details li{ font-size:0.875rem; }
   .paw, .cal-day .cal-paw, .unit-stamp{ filter:invert(.85); }
 }
 @media (prefers-reduced-motion: reduce){
-  .cat, .cat *, .toy, .pet-hand, .heart, .kibble-drop, .xp-fill.grow, .combo-pop, .choice-btn.correct, .confetti span, .game-toast{ animation:none !important; }
+  .cat, .cat *, .cat-say, .toy, .pet-hand, .heart, .kibble-drop, .xp-fill.grow, .combo-pop, .choice-btn.correct, .confetti span, .game-toast{ animation:none !important; }
   .confetti{ display:none; }
 }
 </style>
@@ -1834,6 +1845,22 @@ const TOY_SVG = `<svg class="toy" viewBox="0 0 120 90" aria-hidden="true">
   <path d="M92 50 q8 14 4 30" stroke="#f7c948" stroke-width="2" fill="none"/>
 </svg>`;
 
+// 猫の吹き出し。side=trueで猫の右上(小さい舞台用)
+function catSayHtml(text, opts) {
+  opts = opts || {};
+  const cls = ['cat-say', opts.side ? 'side' : '', opts.wrong ? 'wrong' : ''].filter(Boolean).join(' ');
+  return `<div class="${cls}"${opts.id ? ` id="${opts.id}"` : ''}>${text}</div>`;
+}
+
+// 回答したときの猫のリアクション(再描画で変わらないよう、問題番号で選ぶ)
+const STAGE_LINES = {
+  feed: ['おいしい！', 'もぐもぐ♪', 'うまうま〜', 'おかわり！'],
+  play: ['つかまえた！', 'えいっ！', 'にゃっ！', 'とった〜！'],
+  wrong: ['あれれ？', 'むむ…？', 'ちがうかも？', 'つぎはいける！'],
+  pet: ['ゴロゴロ…', 'きもちいい〜', 'もっと〜', 'しあわせ〜'],
+};
+function stageLine(kind, index) { return STAGE_LINES[kind][index % STAGE_LINES[kind].length]; }
+
 // クイズ画面上部の「ねこの舞台」。scene: 'feed'(ごはん) | 'play'(ねこじゃらし)
 function careStageHtml(scene, session) {
   const stage = getCurrentPetStage();
@@ -1855,7 +1882,8 @@ function careStageHtml(scene, session) {
   return `<div class="cat-stage small scene-${scene}">
     ${props}
     ${catHtml(stage, { anim, size: 100 })}
-    ${answered && !correct ? '<span class="cat-bubble">？</span>' : ''}
+    ${answered ? catSayHtml(!correct ? stageLine('wrong', session.index)
+      : session.combo >= 3 ? `${session.combo}コンボ！すごい！` : stageLine(scene, session.index), { side: true, wrong: !correct }) : ''}
     ${correct && session.combo >= 3 ? heartsHtml(3) : ''}
   </div>`;
 }
@@ -1906,8 +1934,7 @@ function gameResultCardHtml(session) {
     <div class="card game-result">
       <p class="xp-gain">+${session.xpGained} XP</p>
       ${session.maxCombo >= 2 ? `<p class="muted">最大 ${session.maxCombo} コンボ</p>` : ''}
-      <div class="cat-stage small">${catHtml(stage, { anim, size: 100 })}${ratio >= 0.8 ? heartsHtml(3) : ''}</div>
-      <p class="pet-speech">${getPetDisplayName()}「${line}」</p>
+      <div class="cat-stage small">${catHtml(stage, { anim, size: 100 })}${ratio >= 0.8 ? heartsHtml(3) : ''}${catSayHtml(line, { side: true })}</div>
       <p class="muted" style="margin:0 0 4px;">Lv.${info.level}　次のレベルまで あと ${info.needed - info.current} XP</p>
       ${xpBarHtml(info, fromRatio)}
     </div>`;
@@ -2230,11 +2257,11 @@ function renderHome(app) {
         ${streak.length > 0 ? `<span class="pet-streak">🔥 ${streak.length}日連続</span>` : '<span></span>'}
       </div>
       <div class="cat-stage tappable idle-live" data-action="tapPet" role="button" aria-label="ねこをなでる">
+        ${catSayHtml(speech, { id: 'pet-speech' })}
         ${catHtml(stage, { mood, size: 185 })}
       </div>
       <p class="pet-name">${g.petName ? escapeHtml(g.petName) : `${stage.name}<span class="muted">（なまえをつけてね）</span>`}
         <button class="pet-rename" data-action="renamePet" aria-label="なまえを変える">✏️</button></p>
-      <p class="pet-speech" id="pet-speech">「${speech}」</p>
       ${xpBarHtml(info)}
       <p class="muted" style="margin:0;">次のレベルまで あと ${info.needed - info.current} XP</p>
       <div class="care-grid">${careButtons}</div>
@@ -2633,7 +2660,7 @@ function renderPetSession(app) {
     <div class="progress"><div class="progress-fill" style="width:${progressPct}%"></div></div>
     <div class="cat-stage small tappable" data-action="revealPetCard">
       ${catHtml(stage, { anim: session.revealed ? 'anim-purr' : '', size: 100 })}
-      ${session.revealed ? `<span class="pet-hand">🤚</span>${heartsHtml(3)}` : ''}
+      ${session.revealed ? `<span class="pet-hand">🤚</span>${heartsHtml(3)}${catSayHtml(stageLine('pet', session.index), { side: true })}` : ''}
     </div>
     <div class="card flashcard" data-action="revealPetCard" style="flex-direction:column; min-height:110px;">
       <div>${word.w}</div>
@@ -2835,7 +2862,13 @@ const ACTIONS = {
     stageEl.insertAdjacentHTML('beforeend', heartsHtml(3));
     const lines = CONFIG.game.moodLines.tap;
     const speechEl = document.getElementById('pet-speech');
-    if (speechEl) speechEl.textContent = `「${lines[Math.floor(Math.random() * lines.length)]}」`;
+    if (speechEl) {
+      speechEl.textContent = lines[Math.floor(Math.random() * lines.length)];
+      // 吹き出しのポンッと出るアニメをもう一度再生する
+      speechEl.style.animation = 'none';
+      void speechEl.offsetWidth;
+      speechEl.style.animation = '';
+    }
     playPurr();
     cat._animTimer = setTimeout(() => {
       cat.classList.remove('anim-purr');
