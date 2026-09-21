@@ -68,11 +68,12 @@ tangocho・Workout_Appなどと違い、**Supabaseなどのクラウド同期は
           p7bPrecisionResult, hasTakenToeic, beginnerProfile }
   history: [ { date, parts, note } ]   // 診断を受けるたびに追記
   progress: {
-    vocab:   { wrongCounts:{word:回数}, seenCounts:{word:回数}, quizHistory:[{date,correct,total}] },
+    vocab:   { wrongCounts:{word:回数}, seenCounts:{word:回数}, streaks:{word:続けて正解した回数}, quizHistory:[{date,correct,total}] },
     grammar: { unitStatus:{unitId:{completed,bestScore,attempts,lastScore}}, wrongQuestions:{"unitId:index":回数} },
     dailyLog: { "YYYY-MM-DD": {...activity} },
     milestoneState: { streakStartDate, celebrated:[] },
-    game: { xp, initialized, petName, bestCombo, missions:{ date, items:[{id,progress,goal,done}], bonusClaimed }, care:{ date, feed, play, pet } },
+    game: { xp, initialized, petName, bestCombo, missions:{ date, items:[{id,progress,goal,done}], bonusClaimed }, care:{ date, feed, play, pet },
+            onboarded, checkpoint, journeyInitialized, tests:[{date,correct,total}] },
   }
   settings: { fontScale, soundOn }
   meta: { schemaVersion:1 }
@@ -111,13 +112,34 @@ tangocho・Workout_Appなどと違い、**Supabaseなどのクラウド同期は
 - ユニット完了時に`unitStatus[unitId]`へ`completed`・`bestScore`（過去最高正答率）・`attempts`・`lastScore`を記録。
 - 間違えた設問は`wrongQuestions["unitId:index"]`にカウント。「苦手問題を復習する」は全ユニット横断でこれを集めて10問ずつ出題。
 
+## ゲームのストーリーと「実力との連動」— 2026-09-21
+
+**ストーリー**：こねこが「目標の山頂🏆」を目指して旅をする。ユーザーが英語の実力をつける＝ねこが旅を進み、大きく進化する。
+
+**2つのものさしを分けている（重要）**
+- 💗 **なかよしLv**（`progress.game.xp`）：お世話＝解いた「量」で上がる。すぐうれしい短期の報酬。**進化には関係しない**。
+- 🗺️ **旅のチェックポイント**（`progress.game.checkpoint`）：「実力」で進む。ねこの進化（`petStages[].minCheckpoint`）はこちらで決まる。一度着いたら戻らない。
+
+**チェックポイントの条件**（`CONFIG.game.journey`、`evaluateCheckpoint()`）
+- `words`＝覚えた単語数：`progress.vocab.streaks[word]`（続けて正解した回数）が`masteredStreak`(2)以上。間違えると0に戻る。なでなでの「おぼえてた」は自己申告なので数えない（「まだかも」は0に戻す）。
+- `units`＝クリアした文法ユニット：最高正答率が`unitClearScore`(0.7)以上。
+- `test`＝ちからだめしのベスト正答率 ≥ 目標正答率(`getGoalAccuracy`=診断の目標)×係数。最後の「目標の山頂」は係数1.0＝**診断で決めた目標に届くこと**がゴール。
+- 🏔️ **ちからだめし**（`#/test`）：単語12＋文法8問を全範囲から重み付けなしでランダム出題（実力チェック用）。週1回が目安で、7日たつとホームに案内が出る。記録は`progress.game.tests`。
+- 移行：旅の導入前のデータは`initJourney()`が1回だけ「2回以上見て一度も間違えていない単語」を覚えた扱いにする。
+
+**はじめての案内**（`#/welcome`、`progress.game.onboarded`）
+- ①ねこの紹介とストーリー → ②名前をつける → ③チュートリアル（単語3問、`vocabSession.tutorial`） → ④遊びかた説明 → ホーム。
+- 案内が終わるまでは、ほかの画面へ行こうとしても`#/welcome`に戻す（`renderRoute`冒頭）。既存ユーザーも1回見る。設定から「もう一度見る」ことができる。
+- **診断はあとから任意**：未診断ならホームに「目標を決めよう」カード、週次メニューは診断をすすめる画面になる。目標のデフォルトは正答率85%。
+- 下部ナビ：🏠ホーム／🗺️ちず／📅カレンダー／☰メニュー／⚙️設定（案内が終わると表示）。
+
 ## ゲーム化（ペット育成）— 2026-09-21追加
 
 ユーザーがアプリを使わなくなったため、「開くとペットが待っている → 1分クイズでごはん → 育つ」流れを追加。設定値はすべて`CONFIG.game`。
 
 - **XP**：正解+10、不正解+2（挫折させないため0にしない）。コンボ3/5/10回ちょうどで+5/+10/+20のボーナス。
-- **レベル**：`xp`だけを保存し、レベルは毎回`calcLevelInfo()`で計算。Lv nからn+1に必要なXP＝50＋30×(n−1)。
-- **ねこ**：`catSvg()`で描いたSVG。しっぽ・体・頭・耳・目がCSSで別々に動く（呼吸・まばたき・しっぽ振り・耳ぴくぴく）。ホームでは`startCatIdleLoop()`が約4秒おきにきょろきょろ・のび等をランダムに再生し、タップするとその場でゴロゴロ＋ハート（再描画なし）。段階：Lv1こねこ（小さめ）→Lv8ねこ→Lv15おしゃれねこ（リボン）→Lv25マスター（王冠）。2日以上空くと耳が垂れた「しょんぼり」表情になるが**罰はなし**。
+- **なかよしLv**：`xp`だけを保存し、レベルは毎回`calcLevelInfo()`で計算。Lv nからn+1に必要なXP＝50＋30×(n−1)。進化はしない（進化は旅のチェックポイントで起きる）。
+- **ねこ**：`catSvg()`で描いたSVG。しっぽ・体・頭・耳・目がCSSで別々に動く（呼吸・まばたき・しっぽ振り・耳ぴくぴく）。ホームでは`startCatIdleLoop()`が約4秒おきにきょろきょろ・のび等をランダムに再生し、タップするとその場でゴロゴロ＋ハート（再描画なし）。段階（旅のチェックポイントで進化）：はじまり〜こねこ（小さめ）→ちからだめしの丘でねこ→雲の上の村でおしゃれねこ（リボン）→目標の山頂でマスター（王冠）。セリフは吹き出し（`catSayHtml`）で表示。2日以上空くと耳が垂れた「しょんぼり」表情になるが**罰はなし**。
 - **お世話メニュー（遊んでいるうちに学習）**：`CONFIG.game.careActions`
   - 🍚 ごはん＝単語4択5問（`startVocabQuiz(5,'quick')`、`#/vocab/quiz`）。正解で🐟がお皿に落ちて食べる、お皿のごはんが増える。
   - 🪶 あそぶ＝文法4択5問（`startGrammarPlayQuiz()`、`#/grammar/play/quiz`）。全ユニット横断で、間違えた問題・学習済みユニットほど出やすい（`pickPlayGrammarItems`）。正解でねこじゃらしにジャンプ、3コンボ以上で宙返り。
