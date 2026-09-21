@@ -228,6 +228,90 @@ details p, details li{ font-size:0.875rem; }
 @keyframes confetti-fall{ 0%{ opacity:1; transform:translateY(0) rotate(0); } 100%{ opacity:0; transform:translateY(100vh) rotate(720deg); } }
 .game-result{ text-align:center; }
 .game-result .xp-gain{ font-size:1.5rem; font-weight:800; color:var(--primary); margin:0; }
+/* ---- 各画面の共通ヘッダー(小さいねこ＋吹き出し) ---- */
+.page-hero{ display:flex; align-items:center; gap:12px; padding:12px 14px; margin-bottom:14px; border-radius:var(--radius);
+  background:linear-gradient(135deg, var(--hero-a), var(--hero-b)); color:#fff; box-shadow:0 6px 18px rgba(30,20,60,.14); }
+.page-hero .cat-stage.mini{ flex:none; width:76px; height:76px; margin:0; border-radius:50%; background:rgba(255,255,255,.92); align-items:center; }
+.page-hero .cat-stage.mini .cat{ margin:6px 0 0; }
+.hero-text{ flex:1; min-width:0; }
+.hero-text h1{ color:#fff; margin:0 0 6px; font-size:1.1875rem; text-shadow:0 1px 2px rgba(0,0,0,.12); }
+.hero-bubble{ position:relative; display:inline-block; background:rgba(255,255,255,.94); color:#3a3346; border-radius:12px;
+  padding:5px 12px; margin:0; font-size:0.8125rem; font-weight:700; line-height:1.5; }
+.hero-bubble::before{ content:''; position:absolute; left:-6px; top:50%; transform:translateY(-50%);
+  border-style:solid; border-width:6px 6px 6px 0; border-color:transparent rgba(255,255,255,.94) transparent transparent; }
+.hero-vocab{ --hero-a:#ff9f6b; --hero-b:#f76b8a; }
+.hero-grammar{ --hero-a:#8b6bff; --hero-b:#5b8cff; }
+.hero-calendar{ --hero-a:#34c38f; --hero-b:#1fa2a8; }
+.hero-menu{ --hero-a:#4f7bff; --hero-b:#7a5cff; }
+.hero-settings{ --hero-a:#8a8fa3; --hero-b:#5f6577; }
+.hero-stats{ --hero-a:#f7b733; --hero-b:#fc8f4a; }
+.hero-diagnosis{ --hero-a:#ff7eb6; --hero-b:#8b6bff; }
+/* 色ちがいのタイルボタン(care-btnの色替え) */
+.care-btn.c-blue{ background:linear-gradient(160deg,#6b8cff,#3b5bfd); box-shadow:0 5px 14px rgba(59,91,253,.3); }
+.care-btn.c-purple{ background:linear-gradient(160deg,#a58bff,#7a5cff); box-shadow:0 5px 14px rgba(122,92,255,.3); }
+.care-btn.c-pink{ background:linear-gradient(160deg,#ff8fb1,#f7577f); box-shadow:0 5px 14px rgba(247,87,127,.3); }
+.care-btn .care-count{ position:absolute; top:4px; right:6px; background:#fff; color:#f7577f; font-size:0.6875rem; font-weight:800; border-radius:999px; padding:1px 7px; }
+.tile-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:12px; }
+/* 進み具合 */
+.progress-card{ display:flex; align-items:center; gap:14px; }
+.progress-card .pc-body{ flex:1; min-width:0; }
+.big-num{ font-size:1.75rem; font-weight:800; color:var(--primary); line-height:1.1; }
+.big-num small{ font-size:0.875rem; color:var(--muted); font-weight:600; }
+.meter{ height:10px; border-radius:5px; background:rgba(128,128,128,.18); overflow:hidden; margin-top:6px; }
+.meter > i{ display:block; height:100%; border-radius:5px; background:linear-gradient(90deg, var(--accent-warm), var(--primary)); }
+.meter.purple > i{ background:linear-gradient(90deg, #a58bff, #5b8cff); }
+.meter.green > i{ background:linear-gradient(90deg, #34c38f, #1fa2a8); }
+.stat-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
+.stat-tile{ background:var(--card); border-radius:16px; padding:14px 12px; box-shadow:0 4px 16px rgba(30,20,60,.06); }
+.stat-tile .v{ font-size:1.5rem; font-weight:800; color:var(--primary); line-height:1.2; }
+.stat-tile .k{ font-size:0.75rem; color:var(--muted); }
+.stat-tile .e{ font-size:1.25rem; }
+/* 文法ユニット一覧 */
+.unit-card{ display:flex; align-items:center; gap:12px; text-decoration:none; color:inherit; }
+.unit-card.next{ box-shadow:0 0 0 2px var(--accent-warm), 0 4px 16px rgba(30,20,60,.06); }
+.unit-num{ flex:none; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  font-weight:800; background:rgba(122,92,255,.14); color:#7a5cff; }
+.unit-card.done .unit-num{ background:linear-gradient(135deg,#a58bff,#5b8cff); color:#fff; }
+.unit-body{ flex:1; min-width:0; }
+.unit-title{ font-weight:700; }
+.unit-meta{ font-size:0.8125rem; color:var(--muted); }
+.stars{ color:#f7b733; letter-spacing:1px; }
+.stars .off{ color:rgba(128,128,128,.35); }
+.unit-stamp{ font-size:1.375rem; }
+.badge.next{ background:var(--accent-warm); color:#fff; }
+/* 文法の解説 */
+.point-num{ display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:50%;
+  background:linear-gradient(135deg,#a58bff,#5b8cff); color:#fff; font-size:0.8125rem; font-weight:800; margin-right:6px; vertical-align:1px; }
+/* カレンダー */
+.chip-row{ display:flex; gap:8px; margin-bottom:12px; }
+.chip{ flex:1; background:var(--card); border-radius:16px; padding:10px 6px; text-align:center; box-shadow:0 4px 16px rgba(30,20,60,.06); font-size:0.75rem; color:var(--muted); }
+.chip b{ display:block; font-size:1.375rem; color:var(--text); }
+.cal-day.studied{ background:rgba(52,195,143,.14); color:#1f9d6f; }
+.cal-day.today{ box-shadow:inset 0 0 0 2px var(--accent-warm); }
+.cal-day .cal-paw{ position:absolute; bottom:2px; left:50%; transform:translateX(-50%); font-size:0.625rem; line-height:1; }
+/* 週次メニュー */
+.day-chip{ display:inline-flex; align-items:center; gap:6px; font-weight:800; font-size:0.875rem; padding:4px 14px; border-radius:999px;
+  background:rgba(79,123,255,.12); color:var(--primary); margin:16px 0 8px; }
+.day-chip.today{ background:var(--accent-warm); color:#fff; }
+.block-card{ border-left:5px solid var(--mod-color); }
+.block-head{ display:flex; align-items:center; gap:10px; }
+.block-icon{ flex:none; width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.375rem; background:var(--mod-bg); }
+.block-title{ flex:1; min-width:0; }
+.block-min{ font-weight:800; color:var(--mod-color); white-space:nowrap; }
+/* フラッシュカード */
+.flashcard.back{ background:linear-gradient(135deg,#fff4e6,#ffe3ec); color:#3a3346; }
+.flashcard.flip-in{ animation:flip-in .35s ease-out; }
+@keyframes flip-in{ from{ transform:perspective(600px) rotateY(90deg); } to{ transform:none; } }
+/* 診断 */
+.rank-row .meter{ margin-top:4px; }
+.rank-medal{ font-size:1.125rem; margin-right:2px; }
+@media (prefers-reduced-motion: reduce){
+  .flashcard.flip-in{ animation:none; }
+}
+/* 🐾は黒い絵文字なので、ダークモードでは白っぽく反転して見やすくする */
+@media (prefers-color-scheme: dark){
+  .paw, .cal-day .cal-paw, .unit-stamp{ filter:invert(.85); }
+}
 @media (prefers-reduced-motion: reduce){
   .cat, .cat *, .toy, .pet-hand, .heart, .kibble-drop, .xp-fill.grow, .combo-pop, .choice-btn.correct, .confetti span, .game-toast{ animation:none !important; }
   .confetti{ display:none; }
@@ -1706,6 +1790,43 @@ function heartsHtml(count) {
   ).join('');
 }
 
+// 各画面の共通ヘッダー。小さいねこはホームと同じく勝手に動き、タップするとゴロゴロする(idle-live／tapPet)。
+// theme: vocab | grammar | calendar | menu | settings | stats | diagnosis
+function pageHeroHtml(theme, title, line) {
+  const stage = getCurrentPetStage();
+  return `<div class="page-hero hero-${theme}">
+    <div class="cat-stage mini tappable idle-live" data-action="tapPet" role="button" aria-label="ねこをなでる">
+      ${catHtml(stage, { size: Math.round(62 / stage.scale) })}
+    </div>
+    <div class="hero-text">
+      <h1>${title}</h1>
+      <p class="hero-bubble" id="pet-speech">${line}</p>
+    </div>
+  </div>`;
+}
+
+// 学習法モジュールごとのアイコンと色(週次メニュー用)
+const MODULE_STYLE = {
+  audioPerception: { icon: '🎧', color: '#1fa2a8' },
+  fixedResponse: { icon: '💬', color: '#34c38f' },
+  grammar: { icon: '📐', color: '#7a5cff' },
+  vocabulary: { icon: '🔤', color: '#ff8a50' },
+  closeReading: { icon: '🔍', color: '#4f7bff' },
+  speedPractice: { icon: '⏱️', color: '#f7577f' },
+};
+
+// 最高正答率→星(90%以上★3／70%以上★2／それ以外★1)
+function starsHtml(bestScore) {
+  const n = bestScore >= 0.9 ? 3 : bestScore >= 0.7 ? 2 : 1;
+  return `<span class="stars" aria-label="星${n}つ">${'★'.repeat(n)}<span class="off">${'★'.repeat(3 - n)}</span></span>`;
+}
+
+function meterHtml(ratio, variant) {
+  // 少しでも進んでいれば、ほんの少しだけバーを見せる(0%に見えるとやる気が出ないため)
+  const w = ratio > 0 ? Math.max(3, Math.min(100, Math.round(ratio * 100))) : 0;
+  return `<div class="meter${variant ? ' ' + variant : ''}"><i style="width:${w}%"></i></div>`;
+}
+
 const TOY_SVG = `<svg class="toy" viewBox="0 0 120 90" aria-hidden="true">
   <path d="M2 2 Q60 8 92 50" stroke="#8a6a4a" stroke-width="3" fill="none" stroke-linecap="round"/>
   <path d="M92 50 q16 6 18 28 q-16 -4 -18 -28z" fill="#ff7eb6"/>
@@ -1852,7 +1973,7 @@ function captureInputForm() {
 /* ==================== 12. 画面描画 ==================== */
 function renderExperienceGate(app) {
   app.innerHTML = `
-    <h1 class="home-title">はじめに</h1>
+    ${pageHeroHtml('diagnosis', '👋 はじめまして', 'きみのことを教えてにゃ')}
     <div class="card">
       <p>TOEICを受けたことはありますか？</p>
     </div>
@@ -1869,7 +1990,7 @@ function renderBeginnerProfile(app) {
     `<button class="btn ${p.selfLevel === lv.key ? '' : 'secondary'}" data-action="setSelfLevel" data-key="${lv.key}">${lv.label}</button>`).join('');
 
   app.innerHTML = `
-    <h1 class="home-title">英語の経験を教えてください</h1>
+    ${pageHeroHtml('diagnosis', '英語の経験', 'だいたいでだいじょうぶだよ')}
     <p class="muted center">TOEICの詳しい結果が分からなくても大丈夫です。だいたいの感覚で選んでください。</p>
     <div class="card">
       <h2>今の英語力に一番近いのは？</h2>
@@ -1909,7 +2030,7 @@ function renderInputForm(app) {
   const goalScoreVal = u.goalMode === 'score' ? u.goalValue : 600;
 
   app.innerHTML = `
-    <h1>${u.name}さんのTOEIC診断</h1>
+    ${pageHeroHtml('diagnosis', `📝 ${u.name}さんのTOEIC診断`, 'パートごとの正答率を教えてね')}
     <p class="muted">パート別の正答率を入力してください。</p>
     <div class="card">${partsHtml}</div>
     <div class="card">
@@ -1962,12 +2083,15 @@ function renderDiagnosis(app) {
   const diagnosis = APP_STATE.diagnosis || runDiagnosis(DATA.user, CONFIG);
   APP_STATE.diagnosis = diagnosis;
 
+  const maxPriority = Math.max(...diagnosis.ranking.map((r) => r.priority), 0.0001);
+  const medals = ['🥇', '🥈', '🥉'];
   const rows = diagnosis.ranking.map((r, idx) => `
     <div class="rank-row">
-      <div>
-        ${idx < 3 ? `<span class="badge rank">${idx + 1}位</span>` : ''}
+      <div style="flex:1; min-width:0;">
+        ${idx < 3 ? `<span class="rank-medal">${medals[idx]}</span>` : ''}
         <strong>${r.label}</strong><br>
         <span class="muted">現在${pct(r.current)} → 目標${pct(r.goal)}</span>
+        ${meterHtml(r.priority / maxPriority, idx < 3 ? '' : 'green')}
       </div>
       <div><strong>${r.priority.toFixed(1)}</strong></div>
     </div>`).join('');
@@ -1980,9 +2104,9 @@ function renderDiagnosis(app) {
     : DATA.user.p7bSelfReport === 'notCompleted' ? '解き切れなかった' : null;
 
   app.innerHTML = `
-    <h1>診断結果：${diagnosis.phase}</h1>
-    <div class="card">${flagsHtml || '<span class="muted">フラグなし</span>'}</div>
-    <div class="card"><h2>優先度ランキング</h2>${rows}</div>
+    ${pageHeroHtml('diagnosis', `🩺 診断結果：${diagnosis.phase}`, `まずは「${diagnosis.ranking[0].label}」から伸ばそう`)}
+    <div class="card">${flagsHtml || '<span class="muted">気になるサインはなし 👍</span>'}</div>
+    <div class="card"><h2>🏆 のびしろランキング</h2><p class="muted">上ほど、がんばると点が伸びやすいパートです。</p>${rows}</div>
     <div class="card">
       <h2>Part7Bについて</h2>
       <p class="muted">複数文書、最後まで解き切れましたか？</p>
@@ -2009,10 +2133,15 @@ function renderDayBlocksHtml(blocks) {
         <ul>${b.method.steps.map((s) => `<li>${s}</li>`).join('')}</ul>
         <p class="muted">${b.method.tip}</p>
       </details>` : '';
+    const st = MODULE_STYLE[b.moduleId] || { icon: '📘', color: '#4f7bff' };
     return `
-      <div class="card" style="margin-bottom:8px;">
-        <div><strong>${b.label}</strong>${b.subLabel ? ` — ${b.subLabel}` : ''}</div>
-        <div class="muted">${b.minutes}分・KPI: ${b.kpi}</div>
+      <div class="card block-card" style="margin-bottom:8px; --mod-color:${st.color}; --mod-bg:${st.color}22;">
+        <div class="block-head">
+          <span class="block-icon">${st.icon}</span>
+          <div class="block-title"><strong>${b.label}</strong>${b.subLabel ? `<div class="muted">${b.subLabel}</div>` : ''}</div>
+          <span class="block-min">${b.minutes}分</span>
+        </div>
+        <div class="muted" style="margin-top:6px;">目標: ${b.kpi}</div>
         ${methodHtml}
         ${actionHtml}
       </div>`;
@@ -2026,11 +2155,17 @@ function renderMenu(app) {
   }
   const menu = APP_STATE.weeklyMenu;
 
-  const daysHtml = menu.days.map((d) => `<div class="day-title">${d.day}</div>${renderDayBlocksHtml(d.blocks)}`).join('');
+  const todayIdx = jsDayToAppIndex(new Date().getDay());
+  const daysHtml = menu.days.map((d, i) => `
+    <div class="day-chip${i === todayIdx ? ' today' : ''}">${d.day}曜日${i === todayIdx ? '（きょう）' : ''}</div>
+    ${renderDayBlocksHtml(d.blocks)}`).join('');
 
   app.innerHTML = `
-    <h1>週次メニュー</h1>
-    <div class="card">フェーズ: <strong>${menu.phase}</strong>／週合計 ${menu.totalMinutes}分</div>
+    ${pageHeroHtml('menu', '☰ 週次メニュー', 'しっかりやる日はここを見てね')}
+    <div class="stat-grid">
+      <div class="stat-tile"><div class="k">いまのフェーズ</div><div class="v" style="font-size:1.125rem;">${menu.phase}</div></div>
+      <div class="stat-tile"><div class="k">1週間の合計</div><div class="v">${menu.totalMinutes}<small class="muted" style="font-size:.875rem;">分</small></div></div>
+    </div>
     ${daysHtml}
     <div class="actionbar">
       <a class="btn" href="#/home">ホームにもどる</a>
@@ -2146,13 +2281,21 @@ function renderCalendar(app) {
 
   const weeks = [];
   for (let i = 0; i < grid.cells.length; i += 7) weeks.push(grid.cells.slice(i, i + 7));
+  const todayKey = getTodayKey(now);
   const gridHtml = weeks.map((week) => `<div class="cal-week">${week.map((c) => c
-    ? `<button class="cal-day ${c.studied ? 'studied' : ''} ${c.dateKey === selectedKey ? 'selected' : ''}" data-action="selectCalendarDay" data-date="${c.dateKey}">${c.day}${c.studied ? '<span class="cal-dot"></span>' : ''}</button>`
+    ? `<button class="cal-day ${c.studied ? 'studied' : ''} ${c.dateKey === selectedKey ? 'selected' : ''} ${c.dateKey === todayKey ? 'today' : ''}" data-action="selectCalendarDay" data-date="${c.dateKey}">${c.day}${c.studied ? '<span class="cal-paw">🐾</span>' : ''}</button>`
     : `<span class="cal-day empty"></span>`).join('')}</div>`).join('');
+  const monthDays = grid.cells.filter((c) => c && c.studied).length;
+  const line = monthDays === 0 ? 'べんきょうした日に🐾がつくよ'
+    : streak.length >= 3 ? `${streak.length}日連続！すごいにゃ〜` : `今月は${monthDays}日がんばったにゃ`;
 
   app.innerHTML = `
-    <h1 class="home-title">カレンダー</h1>
-    ${streak.length > 0 ? `<p class="streak-line">🔥 現在${streak.length}日連続</p>` : '<p class="center muted">まだ連続記録はありません</p>'}
+    ${pageHeroHtml('calendar', '📅 カレンダー', line)}
+    <div class="chip-row">
+      <div class="chip"><b>🔥 ${streak.length}</b>日連続</div>
+      <div class="chip"><b><span class="paw">🐾</span> ${monthDays}</b>今月の学習日</div>
+      <div class="chip"><b>⭐ ${Object.keys(DATA.progress.dailyLog).length}</b>これまでの合計</div>
+    </div>
     <div class="card">
       <div class="cal-nav">
         <button class="btn small secondary" data-action="shiftCalendarMonth" data-delta="-1">◀</button>
@@ -2164,9 +2307,9 @@ function renderCalendar(app) {
     </div>
     ${detail ? `
       <div class="card">
-        <h2>${selectedKey}の記録</h2>
-        <p>語彙: ${detail.vocabQuestionsAnswered}問（クイズ${detail.vocabQuizzesCompleted}回）</p>
-        <p>文法: ${detail.grammarQuestionsAnswered}問（完了ユニット${detail.grammarUnitsCompleted.length}）</p>
+        <h2>🐾 ${selectedKey}の記録</h2>
+        <p>🔤 語彙: ${detail.vocabQuestionsAnswered}問（クイズ${detail.vocabQuizzesCompleted}回）</p>
+        <p>📐 文法: ${detail.grammarQuestionsAnswered}問（完了ユニット${detail.grammarUnitsCompleted.length}）</p>
       </div>` : (selectedKey ? `<div class="card"><p class="muted">この日は記録がありません</p></div>` : '')}
     <div class="actionbar"><a class="btn secondary" href="#/home">ホームに戻る</a></div>
   `;
@@ -2180,16 +2323,21 @@ function applyFontScale(scaleKey) {
 function renderSettings(app) {
   const current = DATA.settings.fontScale;
   const buttonsHtml = CONFIG.fontScales.map((s) =>
-    `<button class="btn ${s.key === current ? '' : 'secondary'}" data-action="setFontScale" data-key="${s.key}">${s.label}</button>`).join('');
+    `<button class="${s.key === current ? 'active' : ''}" data-action="setFontScale" data-key="${s.key}">${s.label}</button>`).join('');
   app.innerHTML = `
-    <h1 class="home-title">設定</h1>
+    ${pageHeroHtml('settings', '⚙️ 設定', '見やすいように調整してね')}
     <div class="card">
-      <h2>文字の大きさ</h2>
+      <h2>🔠 文字の大きさ</h2>
       <p class="muted">これくらいの大きさで表示されます。</p>
-      ${buttonsHtml}
+      <div class="segmented">${buttonsHtml}</div>
     </div>
     <div class="card">
-      <h2>効果音・振動</h2>
+      <h2>🐱 ねこのなまえ</h2>
+      <p class="muted">いまのなまえ：<strong>${getPetDisplayName()}</strong></p>
+      <button class="btn secondary" data-action="renamePet">なまえを変える</button>
+    </div>
+    <div class="card">
+      <h2>🔔 効果音・振動</h2>
       <p class="muted">正解したときの「ピコン」という音と振動（振動はAndroidのみ）。</p>
       <div class="segmented">
         <button class="${DATA.settings.soundOn ? 'active' : ''}" data-action="setSound" data-on="1">オン</button>
@@ -2201,30 +2349,50 @@ function renderSettings(app) {
 }
 
 function renderGrammarList(app) {
-  const itemsHtml = GRAMMAR_UNITS.map((u) => {
+  const nextUnit = pickNextGrammarUnit(DATA.progress, GRAMMAR_UNITS);
+  const completedCount = GRAMMAR_UNITS.filter((u) => DATA.progress.grammar.unitStatus[u.id] && DATA.progress.grammar.unitStatus[u.id].completed).length;
+  const itemsHtml = GRAMMAR_UNITS.map((u, i) => {
     const status = DATA.progress.grammar.unitStatus[u.id];
-    const statusHtml = status && status.completed
-      ? `<span class="badge rank">完了</span> <span class="muted">最高${Math.round(status.bestScore * 100)}%</span>`
-      : '<span class="muted">未着手</span>';
+    const done = status && status.completed;
+    const isNext = !done && u.id === nextUnit.id;
+    const meta = done
+      ? `${starsHtml(status.bestScore)} <span>最高${Math.round(status.bestScore * 100)}%</span>`
+      : `${isNext ? '<span class="badge next">つぎはここ！</span>' : ''}全${u.quiz.length}問`;
     return `
-      <a class="card" style="display:block; text-decoration:none;" href="#/grammar/${u.id}">
-        <strong>${u.title}</strong><br>${statusHtml}
+      <a class="card unit-card${done ? ' done' : ''}${isNext ? ' next' : ''}" href="#/grammar/${u.id}">
+        <span class="unit-num">${i + 1}</span>
+        <span class="unit-body"><span class="unit-title">${u.title}</span><br><span class="unit-meta">${meta}</span></span>
+        ${done ? '<span class="unit-stamp" aria-label="完了">🐾</span>' : ''}
       </a>`;
   }).join('');
   const wrongCount = getWrongGrammarItems(DATA.progress.grammar).length;
-  app.innerHTML = `<h1>文法ユニット</h1>${itemsHtml}
-    <button class="btn secondary" data-action="startGrammarReview">苦手問題を復習する（${wrongCount}問）</button>
+  const line = completedCount === GRAMMAR_UNITS.length ? 'ぜんぶクリア！天才だにゃ'
+    : `つぎは「${nextUnit.title}」がおすすめ`;
+  app.innerHTML = `
+    ${pageHeroHtml('grammar', '📐 文法ユニット', line)}
+    <div class="card progress-card">
+      <div class="big-num">${completedCount}<small> / ${GRAMMAR_UNITS.length}</small></div>
+      <div class="pc-body"><strong>クリアしたユニット</strong>${meterHtml(completedCount / GRAMMAR_UNITS.length, 'purple')}</div>
+    </div>
+    <div class="tile-grid" style="grid-template-columns:1fr 1fr;">
+      <button class="care-btn c-purple" data-action="startPlay"><span class="care-icon">🪶</span><span class="care-label">ランダム5問</span><span class="care-sub">ねこじゃらしモード</span></button>
+      <button class="care-btn c-pink" data-action="startGrammarReview">${wrongCount ? `<span class="care-count">${wrongCount}</span>` : ''}<span class="care-icon">💪</span><span class="care-label">苦手を復習</span><span class="care-sub">間違えた問題だけ</span></button>
+    </div>
+    ${itemsHtml}
     <div class="actionbar"><a class="btn secondary" href="#/grammar/stats">統計を見る</a><a class="btn secondary" href="#/menu">メニューに戻る</a></div>`;
 }
 
 function renderGrammarStats(app) {
   const stats = computeGrammarStats(DATA.progress.grammar, GRAMMAR_UNITS);
   app.innerHTML = `
-    <h1>文法の統計</h1>
-    <div class="card">
-      <div class="rank-row"><span>完了ユニット数</span><strong>${stats.completedCount} / ${stats.totalUnits}</strong></div>
-      <div class="rank-row"><span>総挑戦回数</span><strong>${stats.totalAttempts}</strong></div>
-      <div class="rank-row"><span>平均ベストスコア</span><strong>${stats.avgBestScore != null ? Math.round(stats.avgBestScore * 100) + '%' : '—'}</strong></div>
+    ${pageHeroHtml('stats', '📊 文法の記録', 'ここまでの記録だにゃ')}
+    <div class="card progress-card">
+      <div class="big-num">${stats.completedCount}<small> / ${stats.totalUnits}</small></div>
+      <div class="pc-body"><strong>クリアしたユニット</strong>${meterHtml(stats.completedCount / stats.totalUnits, 'purple')}</div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-tile"><div class="e">🔁</div><div class="v">${stats.totalAttempts}</div><div class="k">挑戦した回数</div></div>
+      <div class="stat-tile"><div class="e">⭐</div><div class="v">${stats.avgBestScore != null ? Math.round(stats.avgBestScore * 100) + '%' : '—'}</div><div class="k">平均ベストスコア</div></div>
     </div>
     <div class="actionbar"><a class="btn secondary" href="#/grammar">ユニット一覧に戻る</a></div>
   `;
@@ -2233,21 +2401,23 @@ function renderGrammarStats(app) {
 function renderGrammarUnit(app, unitId) {
   const unit = GRAMMAR_UNITS.find((u) => u.id === unitId);
   if (!unit) { location.hash = '#/grammar'; return; }
-  const pointsHtml = unit.explanation.map((p) => `
+  const pointsHtml = unit.explanation.map((p, i) => `
     <div class="grammar-point">
-      <p class="grammar-point-text">${p.text}</p>
+      <p class="grammar-point-text"><span class="point-num">${i + 1}</span>${p.text}</p>
       <div class="grammar-example">
         <p class="example-en">${p.example}</p>
         <p class="example-note">${p.note}</p>
       </div>
     </div>`).join('');
+  const status = DATA.progress.grammar.unitStatus[unit.id];
   app.innerHTML = `
-    <h1>${unit.title}</h1>
+    ${pageHeroHtml('grammar', unit.title, `ねこ先生のポイントは${unit.explanation.length}つだにゃ`)}
+    ${status && status.completed ? `<p class="center">${starsHtml(status.bestScore)} <span class="muted">最高${Math.round(status.bestScore * 100)}%</span></p>` : ''}
     <div class="card">
       <h2>📖 ポイントと例文</h2>
       ${pointsHtml}
     </div>
-    <div class="actionbar"><button class="btn" data-action="startGrammarQuiz" data-unit-id="${unit.id}">クイズを始める（全${unit.quiz.length}問）</button>
+    <div class="actionbar"><button class="btn" data-action="startGrammarQuiz" data-unit-id="${unit.id}">🪶 クイズを始める（全${unit.quiz.length}問）</button>
     <a class="btn secondary" href="#/grammar">ユニット一覧に戻る</a></div>
   `;
 }
@@ -2290,7 +2460,7 @@ function renderGrammarQuiz(app, unitId) {
     <h1>${titleLabel}（${session.index + 1}/${session.items.length}）</h1>
     <div class="progress"><div class="progress-fill" style="width:${progressPct}%"></div></div>
     ${quizHudHtml(session)}
-    ${session.mode === 'play' ? careStageHtml('play', session) : ''}
+    ${careStageHtml('play', session)}
     ${session.mode === 'play' ? `<p class="muted" style="margin:0 0 4px;">${unit.title}</p>` : ''}
     <div class="card"><p>${q.q}</p></div>
     ${choicesHtml}
@@ -2353,15 +2523,20 @@ function renderGrammarResult(app, unitId) {
 
 function renderVocabHome(app) {
   const wrongWordsCount = Object.keys(DATA.progress.vocab.wrongCounts).filter((w) => DATA.progress.vocab.wrongCounts[w] > 0).length;
+  const seenCount = Object.values(DATA.progress.vocab.seenCounts).filter((c) => c > 0).length;
+  const line = seenCount === 0 ? 'まずはカードからいってみよう' : wrongWordsCount > 0 ? `苦手な単語が${wrongWordsCount}語あるにゃ` : 'どれで練習する？';
   app.innerHTML = `
-    <h1>語彙</h1>
-    <div class="card">
-      <p class="muted">${CONFIG.modules.vocabulary.tip}</p>
-      <p>総語数: ${BUILTIN_VOCAB.length}語／苦手語: ${wrongWordsCount}語</p>
+    ${pageHeroHtml('vocab', '🔤 単語', line)}
+    <div class="card progress-card">
+      <div class="big-num">${seenCount}<small> / ${BUILTIN_VOCAB.length}語</small></div>
+      <div class="pc-body"><strong>出会った単語</strong>${meterHtml(seenCount / BUILTIN_VOCAB.length)}</div>
     </div>
-    <button class="btn" data-action="startVocabFlashcards">フラッシュカード</button>
-    <button class="btn secondary" data-action="startVocabQuiz">10問クイズ</button>
-    <button class="btn secondary" data-action="startVocabReview">苦手を復習する（${wrongWordsCount}語）</button>
+    <div class="tile-grid">
+      <button class="care-btn c-blue" data-action="startVocabFlashcards"><span class="care-icon">🃏</span><span class="care-label">カード</span><span class="care-sub">めくって覚える</span></button>
+      <button class="care-btn" data-action="startVocabQuiz"><span class="care-icon">✏️</span><span class="care-label">10問クイズ</span><span class="care-sub">4択でためす</span></button>
+      <button class="care-btn c-pink" data-action="startVocabReview">${wrongWordsCount ? `<span class="care-count">${wrongWordsCount}</span>` : ''}<span class="care-icon">💪</span><span class="care-label">苦手を復習</span><span class="care-sub">間違えた単語</span></button>
+    </div>
+    <div class="card"><p class="muted" style="margin:0;">💡 ${CONFIG.modules.vocabulary.tip}</p></div>
     <div class="actionbar">
       <a class="btn secondary" href="#/vocab/stats">統計を見る</a>
       <a class="btn secondary" href="#/menu">メニューに戻る</a>
@@ -2372,14 +2547,16 @@ function renderVocabHome(app) {
 function renderVocabStats(app) {
   const stats = computeVocabStats(DATA.progress.vocab, BUILTIN_VOCAB);
   app.innerHTML = `
-    <h1>語彙の統計</h1>
-    <div class="card">
-      <div class="rank-row"><span>総語数</span><strong>${stats.totalWords}</strong></div>
-      <div class="rank-row"><span>学習済み語数</span><strong>${stats.totalDistinctSeen}</strong></div>
-      <div class="rank-row"><span>1回目学習中</span><strong>${stats.firstExposure}</strong></div>
-      <div class="rank-row"><span>2回目以降学習中</span><strong>${stats.secondPlusExposure}</strong></div>
-      <div class="rank-row"><span>苦手語数</span><strong>${stats.wrongWordsCount}</strong></div>
-      <div class="rank-row"><span>クイズ実施回数</span><strong>${stats.quizSessionsCompleted}</strong></div>
+    ${pageHeroHtml('stats', '📊 単語の記録', 'ここまでの記録だにゃ')}
+    <div class="card progress-card">
+      <div class="big-num">${stats.totalDistinctSeen}<small> / ${stats.totalWords}語</small></div>
+      <div class="pc-body"><strong>出会った単語</strong>${meterHtml(stats.totalDistinctSeen / stats.totalWords)}</div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-tile"><div class="e">🌱</div><div class="v">${stats.firstExposure}</div><div class="k">1回目の単語</div></div>
+      <div class="stat-tile"><div class="e">🌳</div><div class="v">${stats.secondPlusExposure}</div><div class="k">2回以上見た単語</div></div>
+      <div class="stat-tile"><div class="e">💪</div><div class="v">${stats.wrongWordsCount}</div><div class="k">苦手な単語</div></div>
+      <div class="stat-tile"><div class="e">✏️</div><div class="v">${stats.quizSessionsCompleted}</div><div class="k">クイズをやった回数</div></div>
     </div>
     <div class="actionbar"><a class="btn secondary" href="#/vocab">語彙メニューに戻る</a></div>
   `;
@@ -2392,9 +2569,12 @@ function renderVocabFlashcards(app) {
     s = APP_STATE.flashSession;
   }
   const word = s.deck[s.index];
+  const justFlipped = APP_STATE.flashJustFlipped;
+  APP_STATE.flashJustFlipped = false;
   app.innerHTML = `
-    <h1>フラッシュカード（${s.index + 1}/${s.deck.length}）</h1>
-    <div class="card flashcard" data-action="flipCard">${s.flipped ? word.m : word.w}</div>
+    ${pageHeroHtml('vocab', `🃏 カード（${s.index + 1}/${s.deck.length}）`, 'タップでめくってね')}
+    <div class="progress"><div class="progress-fill" style="width:${Math.round(((s.index + 1) / s.deck.length) * 100)}%"></div></div>
+    <div class="card flashcard${s.flipped ? ' back' : ''}${justFlipped ? ' flip-in' : ''}" data-action="flipCard">${s.flipped ? word.m : word.w}</div>
     <p class="muted center">タップで${s.flipped ? '英単語' : '意味'}を表示</p>
     <div class="row-flex">
       <button class="btn secondary" data-action="prevCard" ${s.index === 0 ? 'disabled' : ''}>前へ</button>
@@ -2433,7 +2613,7 @@ function renderVocabQuiz(app) {
     <h1>${titleLabel}（${session.index + 1}/${session.questions.length}）</h1>
     <div class="progress"><div class="progress-fill" style="width:${progressPct}%"></div></div>
     ${quizHudHtml(session)}
-    ${session.mode === 'quick' ? careStageHtml('feed', session) : ''}
+    ${careStageHtml('feed', session)}
     <div class="card center" style="font-size:1.5rem;">${q.word.w}</div>
     ${choicesHtml}
     ${answerFeedbackHtml(session)}
@@ -2528,7 +2708,7 @@ function renderVocabResult(app) {
 function renderP7bRetest(app) {
   const baseline = DATA.user.parts.P7B;
   app.innerHTML = `
-    <h1>精密診断（Part7B）</h1>
+    ${pageHeroHtml('diagnosis', '🔍 精密診断（Part7B）', '時間を気にせず解いてみてね')}
     <div class="card">
       <p>手持ちの教材でPart7B（複数文書問題）を、時間無制限で解き直してください。</p>
       <p class="muted">解き終えたら、その正答率を入力してください。（前回の正答率: ${pct(baseline)}）</p>
@@ -2548,7 +2728,7 @@ function renderP7bRetest(app) {
 function renderP7bResult(app) {
   const result = DATA.user.p7bPrecisionResult;
   app.innerHTML = `
-    <h1>精密診断の結果</h1>
+    ${pageHeroHtml('diagnosis', '🔍 精密診断の結果', '原因がわかったにゃ')}
     <div class="card center">
       <p style="font-size:1.25rem; font-weight:700;">${result.verdict}</p>
       <p class="muted">ベースライン${pct(result.baseline)} → 再テスト${pct(result.retestAccuracy)}（差 ${Math.round(result.diff * 100)}pt）</p>
@@ -2673,7 +2853,7 @@ const ACTIONS = {
   toggleHomeMenu: () => { APP_STATE.homeMenuOpen = !APP_STATE.homeMenuOpen; },
   dismissGameOverlay: () => { APP_STATE.gameOverlays.shift(); render(); },
   setSound: (d) => { DATA.settings.soundOn = d.on === '1'; save(DATA); render(); },
-  flipCard: () => { APP_STATE.flashSession.flipped = !APP_STATE.flashSession.flipped; render(); },
+  flipCard: () => { APP_STATE.flashSession.flipped = !APP_STATE.flashSession.flipped; APP_STATE.flashJustFlipped = true; render(); },
   nextCard: () => { advanceFlashcard(1); },
   prevCard: () => { advanceFlashcard(-1); },
   submitP7bRetest: () => {
