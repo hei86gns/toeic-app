@@ -30,7 +30,7 @@ tangocho・Workout_Appなどと違い、**Supabaseなどのクラウド同期は
 4. **文法**（`#/grammar`, `#/grammar/:unitId`, `#/grammar/:unitId/quiz`, `#/grammar/:unitId/result`, `#/grammar/stats`）：21ユニット・全104問。各ユニットは解説（`{text, example, note}`の配列）→4択クイズ→結果。苦手問題横断復習モードあり。
 5. **語彙**（`#/vocab`, `#/vocab/flashcards`, `#/vocab/quiz`, `#/vocab/result`, `#/vocab/stats`）：TSL 1,258語からのフラッシュカード（英→日、タップでめくる）と10問4択クイズ。苦手語復習モードあり。
 6. **7B精密診断**（`#/p7b/retest`, `#/p7b/result`）：Part7Bを時間無制限で解き直し、正答率の伸びで「時間切れが原因」か「情報照合が苦手」かを判定。
-7. **ホーム**（`#/home`）：2026-09-21にゲーム化（ペット育成）で作り直し。上から「ペットカード（Lv・EXPバー・ひと言・🍚1分クイズボタン）」→「今日のミッション」→語彙/文法ボタン→「今日の学習メニュー」（従来の曜日別ブロック。折りたたみ）。詳細は後述「ゲーム化」。
+7. **ホーム**（`#/home`）：2026-09-21にゲーム化（ペット育成）で作り直し。上から「ねこカード（Lv・動くねこ・ひと言・EXPバー・お世話ボタン3つ）」→「今日のミッション」→語彙/文法ボタン→「今日の学習メニュー」（従来の曜日別ブロック。折りたたみ）。詳細は後述「ゲーム化」。
 8. **カレンダー**（`#/calendar`）：月表示、学習した日にドット表示。
 9. **設定**（`#/settings`）：文字サイズ（小/標準/大/特大）、効果音・振動のオン/オフ。
 
@@ -42,21 +42,21 @@ tangocho・Workout_Appなどと違い、**Supabaseなどのクラウド同期は
 
 | # | セクション | 行(目安) | 内容 |
 |---|---|---|---|
-| 1 | CONFIG | 171–322 | パート定義（問題数等）、目標モード変換表、閾値、モジュール定義（学習法の手順・tipsもここに直接埋め込み）、曜日ラベル、ストリーク節目、自己診断レベル、文字サイズ選択肢、`game`（XP・レベル曲線・ペット段階・ミッション定義・セリフ） |
-| 2 | BUILTIN_VOCAB | 325 | TSL 1,258語。`[{"w":"word","m":"日本語訳"}, ...]`の1行JS配列 |
-| 3 | GRAMMAR_UNITS | 328–649 | 文法21ユニット。各`{id, title, targetParts, explanation:[{text,example,note}], quiz:[{q,choices,answer,note}]}` |
-| 4 | DEFAULT_DATA + save/load | 650–720 | 後述 |
-| 5 | 診断エンジン | 721–778 | 優先度計算・フラグ判定 |
-| 6 | 週次メニュー生成 | 779–852 | モジュール選定・曜日割り |
-| 7 | 語彙モジュール | 853–970 | 出題選定・クイズ生成・フラッシュカード |
-| 8 | 文法モジュール | 971–1050 | クイズセッション・正誤記録 |
-| 9 | 7B分岐 | 1051–1064 | 自己申告・精密診断 |
-| 9.5 | デイリーログ／ストリーク | 1065–1167 | 学習記録・連続日数・カレンダー・統計 |
-| 9.6 | ゲーム | 1168–1357 | XP・レベル・ペット・ミッション・コンボ・効果音 |
-| 10 | ルーター | 1358–1430 | ハッシュルーティング・下部ナビ |
-| 11 | 表示ヘルパー | 1431–1548 | フォーマット関数、ゲーム用の部品（EXPバー・紙吹雪・レベルアップカード等） |
-| 12 | 画面描画 | 1549–2179 | 各`render*`関数 |
-| 13 | イベント委譲＋起動 | 2180–2309 | `ACTIONS`オブジェクト（クリックのdata-action分岐）、起動処理 |
+| 1 | CONFIG | 242–408 | パート定義（問題数等）、目標モード変換表、閾値、モジュール定義（学習法の手順・tipsもここに直接埋め込み）、曜日ラベル、ストリーク節目、自己診断レベル、文字サイズ選択肢、`game`（XP・レベル曲線・ペット段階・ミッション定義・セリフ） |
+| 2 | BUILTIN_VOCAB | 409 | TSL 1,258語。`[{"w":"word","m":"日本語訳"}, ...]`の1行JS配列 |
+| 3 | GRAMMAR_UNITS | 412–734 | 文法21ユニット。各`{id, title, targetParts, explanation:[{text,example,note}], quiz:[{q,choices,answer,note}]}` |
+| 4 | DEFAULT_DATA + save/load | 735–806 | 後述 |
+| 5 | 診断エンジン | 807–864 | 優先度計算・フラグ判定 |
+| 6 | 週次メニュー生成 | 865–938 | モジュール選定・曜日割り |
+| 7 | 語彙モジュール | 939–1056 | 出題選定・クイズ生成・フラッシュカード |
+| 8 | 文法モジュール | 1057–1142 | クイズセッション・正誤記録 |
+| 9 | 7B分岐 | 1143–1156 | 自己申告・精密診断 |
+| 9.5 | デイリーログ／ストリーク | 1157–1259 | 学習記録・連続日数・カレンダー・統計 |
+| 9.6 | ゲーム | 1260–1566 | XP・レベル・ペット・ミッション・コンボ・効果音 |
+| 10 | ルーター | 1567–1643 | ハッシュルーティング・下部ナビ |
+| 11 | 表示ヘルパー | 1644–1851 | フォーマット関数、ゲーム用の部品（ねこSVG・ねこの舞台・EXPバー・紙吹雪・レベルアップカード等） |
+| 12 | 画面描画 | 1852–2555 | 各`render*`関数 |
+| 13 | イベント委譲＋起動 | 2556–2716 | `ACTIONS`オブジェクト（クリックのdata-action分岐）、起動処理 |
 
 ### 永続化（localStorage）
 
@@ -72,7 +72,7 @@ tangocho・Workout_Appなどと違い、**Supabaseなどのクラウド同期は
     grammar: { unitStatus:{unitId:{completed,bestScore,attempts,lastScore}}, wrongQuestions:{"unitId:index":回数} },
     dailyLog: { "YYYY-MM-DD": {...activity} },
     milestoneState: { streakStartDate, celebrated:[] },
-    game: { xp, initialized, petName, bestCombo, missions:{ date, items:[{id,progress,goal,done}], bonusClaimed } },
+    game: { xp, initialized, petName, bestCombo, missions:{ date, items:[{id,progress,goal,done}], bonusClaimed }, care:{ date, feed, play, pet } },
   }
   settings: { fontScale, soundOn }
   meta: { schemaVersion:1 }
@@ -117,10 +117,15 @@ tangocho・Workout_Appなどと違い、**Supabaseなどのクラウド同期は
 
 - **XP**：正解+10、不正解+2（挫折させないため0にしない）。コンボ3/5/10回ちょうどで+5/+10/+20のボーナス。
 - **レベル**：`xp`だけを保存し、レベルは毎回`calcLevelInfo()`で計算。Lv nからn+1に必要なXP＝50＋30×(n−1)。
-- **ペット**：Lv1たまご→Lv3こねこ→Lv8ねこ→Lv15おしゃれねこ🎀→Lv25マスター👑（emoji＋CSSのみ、画像なし）。表情（`getPetMood`）は今日学習済み=ごきげん／昨日まで=おなかすいた／2日以上空く=しょんぼり。**罰はなし**（死なない・XPは減らない）。
-- **1分クイズ**：`startVocabQuiz(5,'quick')`。画面は語彙クイズを流用し、タイトルが「🍚 ごはんタイム」、結果画面は「もう1回」が一番大きいボタン。
+- **ねこ**：`catSvg()`で描いたSVG。しっぽ・体・頭・耳・目がCSSで別々に動く（呼吸・まばたき・しっぽ振り・耳ぴくぴく）。ホームでは`startCatIdleLoop()`が約4秒おきにきょろきょろ・のび等をランダムに再生し、タップするとその場でゴロゴロ＋ハート（再描画なし）。段階：Lv1こねこ（小さめ）→Lv8ねこ→Lv15おしゃれねこ（リボン）→Lv25マスター（王冠）。2日以上空くと耳が垂れた「しょんぼり」表情になるが**罰はなし**。
+- **お世話メニュー（遊んでいるうちに学習）**：`CONFIG.game.careActions`
+  - 🍚 ごはん＝単語4択5問（`startVocabQuiz(5,'quick')`、`#/vocab/quiz`）。正解で🐟がお皿に落ちて食べる、お皿のごはんが増える。
+  - 🪶 あそぶ＝文法4択5問（`startGrammarPlayQuiz()`、`#/grammar/play/quiz`）。全ユニット横断で、間違えた問題・学習済みユニットほど出やすい（`pickPlayGrammarItems`）。正解でねこじゃらしにジャンプ、3コンボ以上で宙返り。
+  - 🤚 なでなで＝単語カード5枚（`startPetSession()`、`#/pet`）。なでると意味が出て「おぼえてた／まだかも」を自己申告。「まだかも」は`wrongCounts`+1されて、ごはん・復習で出やすくなる。自己申告なのでXPは1枚5と控えめ。
+  - 間違えるとねこが首をかしげて「？」。
+  - 今日やったお世話は`progress.game.care`（日付が変わるとリセット）。ねこのセリフは、まだやっていないお世話をおねだりする（`pickCatLineKey`）。
 - **今日のミッション**：`generateDailyMissions(日付)`が日付をシードにした乱数で3つ選ぶ（同じ日は何度開いても同じ）。同じ`group`（未指定なら`event`）は1日1つまで、「苦手を復習」は苦手が1つ以上あるときだけ候補になる。全達成で+50XP。
-- **フック**：`submitVocabAnswer`/`submitGrammarAnswer`→`onAnswer()`、クイズ完了→`onSessionComplete()`。
+- **フック**：`submitVocabAnswer`/`submitGrammarAnswer`→`onAnswer()`、クイズ完了→`onSessionComplete()`（お世話回数・ミッションもここで進む）。ミッションは`action`（お世話を直接開始）か`href`（画面移動）で行をタップして始められる。
 - **演出**：コンボ表示・正解ボタンが弾む・紙吹雪（5/10コンボ、レベルアップ、ミッション全達成）・ミッション達成トースト・Web Audioで合成した効果音・`navigator.vibrate`（Androidのみ）。レベルアップ等の全画面カードはクイズ中は出さず、結果画面/ホームで表示（`APP_STATE.gameOverlays`キュー）。
 - **既存ユーザーの移行**：初回起動時に`initGameState()`が「これまで解いた単語数×2＋完了した文法ユニット数×30」のXPを付与。
 - `prefers-reduced-motion`（OSの「視差効果を減らす」設定）ではアニメーションを止める。
