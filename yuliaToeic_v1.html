@@ -295,6 +295,24 @@ details p, details li{ font-size:0.875rem; }
 .hero-stats{ --hero-a:#f7b733; --hero-b:#fc8f4a; }
 .hero-diagnosis{ --hero-a:#ff7eb6; --hero-b:#8b6bff; }
 .hero-journey{ --hero-a:#34c38f; --hero-b:#4f7bff; }
+.hero-help{ --hero-a:#ffb347; --hero-b:#ff7eb6; }
+/* 使い方 */
+.home-help-link{ display:flex; justify-content:flex-end; margin:-6px 0 8px; }
+.home-help-link a{ display:inline-flex; align-items:center; gap:4px; padding:6px 12px; border-radius:999px; background:var(--card);
+  color:var(--primary); font-size:0.8125rem; font-weight:700; text-decoration:none; box-shadow:0 2px 8px rgba(30,20,60,.08); }
+.help-quick ol{ padding-left:1.4em; margin:0; }
+.help-quick li{ margin-bottom:6px; line-height:1.6; }
+.help-item{ padding:0; }
+.help-item > summary{ list-style:none; display:flex; align-items:center; gap:10px; margin:0; padding:14px 16px; font-size:0.9375rem; font-weight:700; }
+.help-item > summary::-webkit-details-marker{ display:none; }
+.help-item > summary::after{ content:'＋'; margin-left:auto; color:var(--muted); }
+.help-item[open] > summary::after{ content:'－'; }
+.help-item .help-body{ padding:0 16px 14px; }
+.help-body p, .help-body li{ font-size:0.875rem; line-height:1.7; }
+.help-body ul{ padding-left:1.2em; margin:0 0 8px; }
+.help-road{ display:grid; grid-template-columns:auto 1fr; gap:4px 10px; font-size:0.8125rem; margin:6px 0 8px; }
+.help-road .muted{ font-size:0.75rem; }
+.help-note{ background:rgba(255,179,71,.14); border-radius:12px; padding:10px 12px; }
 /* 色ちがいのタイルボタン(care-btnの色替え) */
 .care-btn.c-blue{ background:linear-gradient(160deg,#6b8cff,#3b5bfd); box-shadow:0 5px 14px rgba(59,91,253,.3); }
 .care-btn.c-purple{ background:linear-gradient(160deg,#a58bff,#7a5cff); box-shadow:0 5px 14px rgba(122,92,255,.3); }
@@ -1909,6 +1927,7 @@ function renderRoute(app, root, a, b) {
   if (root === 'home') return renderHome(app);
   if (root === 'calendar') return renderCalendar(app);
   if (root === 'settings') return renderSettings(app);
+  if (root === 'help') return renderHelp(app);
   if (root === 'diagnosis') return renderDiagnosis(app);
   if (root === 'menu') return renderMenu(app);
   if (root === 'grammar') {
@@ -2524,6 +2543,7 @@ function renderHome(app) {
   }).join('');
 
   app.innerHTML = `
+    <div class="home-help-link"><a href="#/help">📖 使い方</a></div>
     <div class="card pet-card">
       <div class="pet-top">
         <span class="pet-level">💗 なかよしLv.${info.level}</span>
@@ -2642,6 +2662,11 @@ function renderSettings(app) {
   app.innerHTML = `
     ${pageHeroHtml('settings', '⚙️ 設定', '見やすいように調整してね')}
     <div class="card">
+      <h2>📖 使い方</h2>
+      <p class="muted">遊びかた・旅のすすめかた・こまったときの対処をまとめています。</p>
+      <a class="btn secondary" href="#/help">使い方を見る</a>
+    </div>
+    <div class="card">
       <h2>🔠 文字の大きさ</h2>
       <p class="muted">これくらいの大きさで表示されます。</p>
       <div class="segmented">${buttonsHtml}</div>
@@ -2665,6 +2690,94 @@ function renderSettings(app) {
         <button class="${DATA.settings.soundOn ? '' : 'active'}" data-action="setSound" data-on="0">オフ</button>
       </div>
     </div>
+    <div class="actionbar"><a class="btn secondary" href="#/home">ホームに戻る</a></div>
+  `;
+}
+
+function renderHelp(app) {
+  const G = CONFIG.game;
+  const name = getPetDisplayName();
+  const stageAt = (i) => G.petStages.slice().reverse().find((s) => i >= s.minCheckpoint);
+  const road = G.journey.map((c, i) => {
+    const r = c.requires;
+    const cond = [
+      r.words ? `単語${r.words}語` : '',
+      r.units ? `文法${r.units}ユニット` : '',
+      r.test ? `ちからだめし${r.test === 1 ? '目標' : `目標の${Math.round(r.test * 100)}%`}` : '',
+    ].filter(Boolean).join('・') || 'スタート地点';
+    const evolve = i > 0 && stageAt(i) !== stageAt(i - 1) ? ` → <strong>${stageAt(i).name}</strong>に進化` : '';
+    return `<span>${c.icon}</span><span>${c.name}<br><span class="muted">${cond}${evolve}</span></span>`;
+  }).join('');
+  const item = (icon, title, body, open) =>
+    `<details class="card help-item"${open ? ' open' : ''}><summary><span>${icon}</span>${title}</summary><div class="help-body">${body}</div></details>`;
+
+  app.innerHTML = `
+    ${pageHeroHtml('help', '📖 使い方', 'わからないことは ここを見てね')}
+    <div class="card help-quick">
+      <h2>⏱️ まずはこれだけ（1日1分〜）</h2>
+      <ol>
+        <li>アプリを開くと、ホームで${escapeHtml(name)}が待っています</li>
+        <li>🍚ごはん・🪶あそぶ・🤚なでなで のどれかをタップ</li>
+        <li>数問こたえたら終わり。ねこが喜んで、なかよしLvが上がります</li>
+      </ol>
+      <p class="muted" style="margin:8px 0 0;">毎日ちょっとずつが、いちばん力になります。</p>
+    </div>
+    ${item('🐱', 'お世話メニュー（ごはん・あそぶ・なでなで）', `
+      <ul>
+        <li>🍚 <strong>ごはん</strong>：英単語の意味を4つからえらぶ（${G.quickQuizCount}問）</li>
+        <li>🪶 <strong>あそぶ</strong>：文法の穴うめ問題を4つからえらぶ（${G.playQuizCount}問）。まちがえた問題ほど出やすい</li>
+        <li>🤚 <strong>なでなで</strong>：単語カード${G.petCardCount}枚。なでると意味が出るので「おぼえてた／まだかも」をえらぶ</li>
+      </ul>
+      <p>まちがえても大丈夫。まちがえた単語や問題は、あとで出やすくなって自然に復習できます。</p>`, true)}
+    ${item('💗', 'なかよしLv と 旅のちず のちがい', `
+      <p>ものさしが2つあります。</p>
+      <ul>
+        <li>💗 <strong>なかよしLv</strong>：問題を解いた<strong>量</strong>で上がる。正解+${G.xpPerCorrect}XP、まちがいでも+${G.xpPerWrong}XP</li>
+        <li>🗺️ <strong>旅のちず</strong>：英語の<strong>実力</strong>で進む。${escapeHtml(name)}が大きくなるのはこっち。一度進んだら戻りません</li>
+      </ul>
+      <div class="help-road">${road}</div>
+      <p class="muted">「覚えた単語」＝2回つづけて正解した単語（まちがえると0からやりなおし）。「クリアした文法ユニット」＝最高正答率${Math.round(G.unitClearScore * 100)}%以上。</p>`)}
+    ${item('🏔️', 'ちからだめし（週1回）', `
+      <p>単語${G.test.vocab}問＋文法${G.test.grammar}問を、全範囲からランダムに出題する実力チェックです。${G.test.intervalDays}日たつとホームに案内が出ます。</p>
+      <p>旅の後半へ進むには、ちからだめしの成績が必要です。ゴールの🏆は「診断で決めた目標の正答率」に届くこと。</p>`)}
+    ${item('✅', '今日のミッション', `
+      <p>毎日${G.missionsPerDay}つのミッションが出ます（同じ日は何度開いても同じ）。行をタップするとすぐ始められます。</p>
+      <p>ぜんぶクリアすると、ごちそうボーナス +${G.missionBonusXp}XP 🍰</p>`)}
+    ${item('📚', 'じっくり勉強したいとき（語彙・文法）', `
+      <ul>
+        <li>🔤 <strong>語彙</strong>：単語カード（タップでめくる）、10問クイズ、苦手だけの復習</li>
+        <li>📐 <strong>文法</strong>：${GRAMMAR_UNITS.length}ユニット。解説を読んでからクイズ。「つぎはここ！」の順に進めるのがおすすめ</li>
+      </ul>
+      <p>ホームの「語彙をやる」「文法をやる」から開けます。</p>`)}
+    ${item('🎯', '目標と診断・学習メニュー', `
+      <p>TOEICのパートごとの正答率を入れると、苦手なところを見つけて1週間の学習メニューを作ります（3分ほど）。</p>
+      <ul>
+        <li>診断はあとからでOK。⚙️設定 →「診断して目標を決める」</li>
+        <li>できたメニューは ☰メニュー と、ホーム下の「今日の学習メニュー」で見られます</li>
+      </ul>`)}
+    ${item('📅', 'カレンダー・連続記録', `
+      <p>勉強した日に🐾がつきます。日付をタップすると、その日に解いた問題数が見られます。</p>
+      <p>2日以上あくと${escapeHtml(name)}がしょんぼりしますが、罰はありません。また開けば元気になります。</p>`)}
+    ${item('📱', 'スマホのホーム画面に追加する', `
+      <p>アプリのように1タップで開けるようになります。</p>
+      <ul>
+        <li><strong>iPhone（Safari）</strong>：画面下の共有ボタン（□に↑）→「ホーム画面に追加」</li>
+        <li><strong>Android（Chrome）</strong>：右上の︙ →「ホーム画面に追加」</li>
+      </ul>`)}
+    ${item('💾', '記録の保存について（大切）', `
+      <p class="help-note">記録は<strong>このスマホのこのブラウザの中だけ</strong>に保存されます。インターネット上には送られません。</p>
+      <ul>
+        <li>別のスマホや別のブラウザで開くと、記録は引き継がれません</li>
+        <li>ブラウザの「履歴とWebサイトデータを消去」をすると、記録も消えてしまいます</li>
+      </ul>`)}
+    ${item('🔧', 'こまったとき', `
+      <ul>
+        <li>文字が小さい・大きい → ⚙️設定の「文字の大きさ」</li>
+        <li>音を消したい → ⚙️設定の「効果音・振動」</li>
+        <li>ねこの名前を変えたい → ホームの✏️ か ⚙️設定</li>
+        <li>最初の案内をもう一度見たい → ⚙️設定の「はじめての案内をもう一度見る」</li>
+        <li>画面がおかしい → いちど閉じて開きなおしてみてください</li>
+      </ul>`)}
     <div class="actionbar"><a class="btn secondary" href="#/home">ホームに戻る</a></div>
   `;
 }
