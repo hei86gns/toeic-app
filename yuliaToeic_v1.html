@@ -12,6 +12,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="ゆりあTOEIC">
 <meta name="theme-color" content="#3b5bfd">
+<!-- クラウド保存(ログイン任意)。読み込めなくても(オフライン等)アプリはローカル保存だけで動く -->
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.min.js"></script>
 <style>
 :root{
   --bg:#f6f5fb; --card:#ffffff; --text:#232228; --muted:#7a7686;
@@ -302,7 +304,16 @@ details p, details li{ font-size:0.875rem; }
 .hero-journey{ --hero-a:#34c38f; --hero-b:#4f7bff; }
 .hero-help{ --hero-a:#ffb347; --hero-b:#ff7eb6; }
 /* 使い方 */
-.home-help-link{ display:flex; justify-content:flex-end; margin:-6px 0 8px; }
+.home-help-link{ display:flex; justify-content:flex-end; gap:8px; margin:-6px 0 8px; }
+.home-help-link .sync-badge{ margin-right:auto; color:var(--success); }
+.home-help-link .sync-badge.warn{ color:var(--warning); }
+[hidden]{ display:none !important; }
+.account-form label{ display:block; font-weight:700; font-size:0.875rem; margin:0 0 6px; }
+.account-form input{ width:100%; min-height:48px; border-radius:14px; border:1px solid rgba(128,128,128,.35); background:var(--bg);
+  color:var(--text); padding:0 14px; font-size:1rem; margin-bottom:14px; }
+.account-error{ color:var(--danger); font-weight:700; font-size:0.875rem; }
+.conflict-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:10px 0; }
+.conflict-grid .card{ margin:0; padding:12px; font-size:0.8125rem; line-height:1.7; border:2px solid rgba(128,128,128,.2); }
 .home-help-link a{ display:inline-flex; align-items:center; gap:4px; padding:6px 12px; border-radius:999px; background:var(--card);
   color:var(--primary); font-size:0.8125rem; font-weight:700; text-decoration:none; box-shadow:0 2px 8px rgba(30,20,60,.08); }
 .help-quick ol{ padding-left:1.4em; margin:0; }
@@ -935,7 +946,8 @@ const DEFAULT_DATA = {
             tests: [] },                 // ちからだめしの記録 [{date, correct, total}]
   },
   settings: { fontScale: 'medium', soundOn: true },
-  meta: { schemaVersion: 1 },
+  // updatedAt=中身が最後に変わった時刻(ms)。syncedAt/syncedUser=クラウドと一致していると分かっている版とそのアカウント
+  meta: { schemaVersion: 1, updatedAt: 0, syncedAt: 0, syncedUser: null },
 };
 
 function cloneData(obj) { return JSON.parse(JSON.stringify(obj)); }
@@ -956,21 +968,36 @@ function mergeWithDefaults(parsed) {
   };
   merged.settings = Object.assign({}, base.settings, parsed.settings);
   merged.history = parsed.history || base.history;
+  merged.meta = Object.assign({}, base.meta, parsed.meta);
   return merged;
 }
 
+// meta以外(=学習の中身)をJSON化したもの。save()でこれが変わったときだけ「更新された」とみなす
+// (ホームを開くたびにsave()が呼ばれるので、呼ばれただけで更新扱いにするとクラウドの新しい記録を上書きしてしまう)
+function contentBody(data) {
+  const { meta, ...content } = data;
+  return JSON.stringify(content);
+}
+let lastSavedBody = null;
+
 function load() {
+  let data;
   try {
     const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_STORAGE_KEY);
-    if (!raw) return cloneData(DEFAULT_DATA);
-    return mergeWithDefaults(JSON.parse(raw));
+    data = raw ? mergeWithDefaults(JSON.parse(raw)) : cloneData(DEFAULT_DATA);
   } catch (e) {
-    return cloneData(DEFAULT_DATA);
+    data = cloneData(DEFAULT_DATA);
   }
+  lastSavedBody = contentBody(data);
+  return data;
 }
 
 function save(data) {
+  const body = contentBody(data);
+  const changed = body !== lastSavedBody;
+  if (changed) { data.meta.updatedAt = Date.now(); lastSavedBody = body; }
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  if (changed) scheduleCloudSync();
 }
 
 let DATA;
@@ -1894,6 +1921,203 @@ function playAnswerFeedback(isCorrect, combo) {
   if (navigator.vibrate) navigator.vibrate(isCorrect ? (combo >= 3 ? [15, 40, 15] : 12) : 40);
 }
 
+/* ==================== 9.7 クラウド保存(Supabase・ログイン任意) ==================== */
+// プロジェクトA(個人用)。単語帳・筋トレ等と同じアカウントでログインできるが、テーブルは別(toeic_data)なのでデータは混ざらない。
+// 方針: まずlocalStorageに保存 → ログイン中なら少し待ってからクラウドへ。食い違ったら「新しいほう」を採用。
+const CLOUD = {
+  url: 'https://disfgytjjflnlowywess.supabase.co',
+  anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRpc2ZneXRqamZsbmxvd3l3ZXNzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzIwNTUsImV4cCI6MjA5NzYwODA1NX0.E87A1J1BtMK9FHzYTjTZhy2QgjXW8WzzTMp1yNP0g1w', // 公開用のキー(行レベルセキュリティで本人の行しか触れない)
+  table: 'toeic_data',
+  // 同じSupabaseを使う他アプリ(同じhei86gns.github.io上)とログイン状態が混ざらないよう、専用の保存名にする
+  authStorageKey: 'yuliaToeic-auth',
+  pushDelayMs: 1500,
+  bootTimeoutMs: 5000,
+};
+const SYNC = { client: null, user: null, state: 'off', lastSyncedAt: null, timer: null, running: null, again: false, conflict: null, error: '' };
+
+function getCloudClient() {
+  if (SYNC.client) return SYNC.client;
+  if (typeof window === 'undefined' || !window.supabase) return null;
+  SYNC.client = window.supabase.createClient(CLOUD.url, CLOUD.anonKey, {
+    auth: { storageKey: CLOUD.authStorageKey, persistSession: true, autoRefreshToken: true },
+  });
+  return SYNC.client;
+}
+
+function hasStoredCloudSession() {
+  try { return !!localStorage.getItem(CLOUD.authStorageKey); } catch (e) { return false; }
+}
+
+function isLocalDirty(data) {
+  return !data.meta.syncedUser || data.meta.syncedUser !== (SYNC.user && SYNC.user.id) || data.meta.updatedAt > data.meta.syncedAt;
+}
+
+// まだ何も始めていないデータか(新しい端末で初めて開いた状態)
+function isBlankData(data) {
+  return !data.progress.game.onboarded && !data.progress.game.xp && !Object.keys(data.progress.dailyLog).length;
+}
+
+function summarizeData(data) {
+  const days = Object.keys(data.progress.dailyLog).sort();
+  return {
+    level: calcLevelInfo(data.progress.game.xp || 0, CONFIG.game).level,
+    words: Object.keys(data.progress.vocab.seenCounts || {}).length,
+    days: days.length,
+    lastDay: days.length ? days[days.length - 1] : null,
+    updatedAt: data.meta.updatedAt || 0,
+  };
+}
+
+function setSyncState(state, error) {
+  SYNC.state = state;
+  SYNC.error = error || '';
+  updateSyncBadge();
+}
+
+// ローカル(DATA)をクラウドの版で置きかえる
+function adoptCloudData(cloudData) {
+  const next = mergeWithDefaults(cloudData);
+  next.meta.syncedAt = next.meta.updatedAt;
+  next.meta.syncedUser = SYNC.user.id;
+  DATA = next;
+  lastSavedBody = contentBody(DATA);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA));
+  APP_STATE.diagnosis = null;
+  APP_STATE.weeklyMenu = null;
+  applyFontScale(DATA.settings.fontScale);
+}
+
+async function pushToCloud() {
+  // 送信中に回答が進んでもずれないよう、送る時点の版を控えておく
+  const snapshot = cloneData(DATA);
+  const { error } = await SYNC.client.from(CLOUD.table).upsert({ user_id: SYNC.user.id, data: snapshot, updated_at: new Date().toISOString() });
+  if (error) throw error;
+  DATA.meta.syncedAt = snapshot.meta.updatedAt;
+  DATA.meta.syncedUser = SYNC.user.id;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA));
+}
+
+// クラウドとローカルを見くらべて、必要なほうへそろえる。戻り値: 'pulled'(クラウドを取りこんだ) / 'pushed' / 'same' / 'conflict'
+async function syncNow() {
+  if (!SYNC.user) return 'off';
+  if (SYNC.running) { SYNC.again = true; return SYNC.running; }
+  setSyncState('syncing');
+  SYNC.running = (async () => {
+    const { data: row, error } = await SYNC.client.from(CLOUD.table).select('data').eq('user_id', SYNC.user.id).maybeSingle();
+    if (error) throw error;
+    if (!row) { await pushToCloud(); return 'pushed'; }
+    const cloud = row.data;
+    const cloudVer = (cloud.meta && cloud.meta.updatedAt) || 0;
+    if (DATA.meta.syncedUser !== SYNC.user.id) {
+      // この端末はまだこのアカウントと一度もそろえていない
+      if (isBlankData(DATA)) { adoptCloudData(cloud); return 'pulled'; }
+      if (isBlankData(mergeWithDefaults(cloud))) { await pushToCloud(); return 'pushed'; }
+      SYNC.conflict = { cloud, local: summarizeData(DATA), remote: summarizeData(mergeWithDefaults(cloud)) };
+      return 'conflict';
+    }
+    const cloudChanged = cloudVer !== DATA.meta.syncedAt; // ほかの端末がクラウドを更新した
+    const localChanged = DATA.meta.updatedAt > DATA.meta.syncedAt;
+    if (cloudChanged && (!localChanged || cloudVer > DATA.meta.updatedAt)) { adoptCloudData(cloud); return 'pulled'; }
+    if (localChanged) { await pushToCloud(); return 'pushed'; }
+    return 'same';
+  })();
+  try {
+    const result = await SYNC.running;
+    SYNC.lastSyncedAt = Date.now();
+    setSyncState(result === 'conflict' ? 'conflict' : 'synced');
+    return result;
+  } catch (e) {
+    const offline = typeof navigator !== 'undefined' && navigator.onLine === false;
+    setSyncState('error', offline ? 'オフラインです。つながったら自動で保存します' : cloudErrorMessage(e));
+    return 'error';
+  } finally {
+    SYNC.running = null;
+    if (SYNC.again) { SYNC.again = false; scheduleCloudSync(); }
+  }
+}
+
+function cloudErrorMessage(e) {
+  const msg = (e && e.message) || String(e);
+  if (/relation|does not exist|schema cache|toeic_data/i.test(msg)) return 'クラウドの準備ができていません（管理者の設定待ち）';
+  if (/fetch|network/i.test(msg)) return '通信できませんでした。あとで自動でやりなおします';
+  return 'クラウド保存に失敗しました：' + msg;
+}
+
+function scheduleCloudSync(delay) {
+  if (!SYNC.user) return;
+  clearTimeout(SYNC.timer);
+  if (SYNC.state !== 'syncing') setSyncState('pending');
+  SYNC.timer = setTimeout(() => { SYNC.timer = null; syncNow().then(afterBackgroundSync); }, delay == null ? CLOUD.pushDelayMs : delay);
+}
+
+// 裏で同期した結果、クラウドの記録を取りこんだら画面を描き直す
+function afterBackgroundSync(result) {
+  if (result === 'pulled') {
+    APP_STATE.gameToast = '☁️ ほかの端末の記録を読みこみました';
+    render();
+  } else if (result === 'conflict') {
+    location.hash = '#/account';
+  }
+}
+
+function withTimeout(promise, ms) {
+  return Promise.race([promise, new Promise((resolve) => setTimeout(() => resolve('timeout'), ms))]);
+}
+
+// 起動時: ログイン済みなら、画面を描く前にクラウドの最新版を取りこむ(古いデータで上書きしないため)
+async function initCloud() {
+  const client = getCloudClient();
+  if (!client) return 'off';
+  const { data } = await client.auth.getSession();
+  SYNC.user = data.session ? data.session.user : null;
+  if (!SYNC.user) { setSyncState('off'); return 'off'; }
+  return syncNow();
+}
+
+async function cloudLogin(email, password) {
+  const client = getCloudClient();
+  if (!client) throw new Error('クラウドの部品を読みこめませんでした。通信状態を確認してください');
+  const { data, error } = await client.auth.signInWithPassword({ email, password });
+  if (error) throw new Error(/invalid/i.test(error.message) ? 'メールアドレスかパスワードがちがいます' : error.message);
+  SYNC.user = data.user;
+  return syncNow();
+}
+
+async function cloudLogout() {
+  clearTimeout(SYNC.timer);
+  if (SYNC.user && isLocalDirty(DATA) && SYNC.state !== 'conflict') await syncNow().catch(() => {});
+  if (SYNC.client) await SYNC.client.auth.signOut().catch(() => {});
+  SYNC.user = null;
+  SYNC.conflict = null;
+  setSyncState('off');
+}
+
+// 食いちがい(この端末とクラウドの両方に別の記録がある)をユーザーの選択で解決する
+async function resolveCloudConflict(useCloud) {
+  const c = SYNC.conflict;
+  if (!c) return;
+  SYNC.conflict = null;
+  if (useCloud) {
+    adoptCloudData(c.cloud);
+  } else {
+    await pushToCloud();
+  }
+  setSyncState('synced');
+}
+
+function syncBadgeText() {
+  if (!SYNC.user) return '';
+  return { syncing: '☁️ 保存中…', pending: '☁️ 保存待ち', synced: '☁️ 保存ずみ', error: '⚠️ 未保存', conflict: '⚠️ 要確認' }[SYNC.state] || '☁️';
+}
+
+function updateSyncBadge() {
+  const el = typeof document !== 'undefined' && document.getElementById('sync-badge');
+  if (!el) return;
+  el.textContent = syncBadgeText();
+  el.hidden = !SYNC.user;
+  el.classList.toggle('warn', SYNC.state === 'error' || SYNC.state === 'conflict');
+}
+
 /* ==================== 10. ルーター ==================== */
 function parseRoute(hash) {
   const path = (hash || '#/input').slice(1);
@@ -1911,6 +2135,12 @@ function render() {
   const segments = parseRoute(location.hash);
   const [root, a, b] = segments;
   const app = document.getElementById('app');
+  // 別の画面へ移ったときは一番上から表示する(同じ画面の描き直し=クイズの回答などでは位置を保つ)
+  if (APP_STATE.lastHash !== location.hash) {
+    APP_STATE.lastHash = location.hash;
+    const scroller = document.getElementById('scroller');
+    if (scroller) scroller.scrollTop = 0;
+  }
   renderRoute(app, root, a, b);
   renderBottomNav(app, root);
   // クイズ中はレベルアップ等の全画面カードを出さず、結果画面・ホームで見せる(回答の邪魔をしない)
@@ -1921,7 +2151,7 @@ function render() {
 function renderRoute(app, root, a, b) {
   // はじめての案内がまだなら、案内(とチュートリアルの3問)以外は見せない
   const inTutorial = root === 'vocab' && APP_STATE.vocabSession && APP_STATE.vocabSession.tutorial;
-  if (!DATA.progress.game.onboarded && root !== 'welcome' && !inTutorial) {
+  if (!DATA.progress.game.onboarded && root !== 'welcome' && root !== 'account' && !inTutorial) {
     if (location.hash !== '#/welcome') { location.hash = '#/welcome'; return; }
   }
   if (root === 'welcome') return renderWelcome(app, a);
@@ -1933,6 +2163,7 @@ function renderRoute(app, root, a, b) {
   if (root === 'calendar') return renderCalendar(app);
   if (root === 'settings') return renderSettings(app);
   if (root === 'help') return renderHelp(app);
+  if (root === 'account') return renderAccount(app);
   if (root === 'diagnosis') return renderDiagnosis(app);
   if (root === 'menu') return renderMenu(app);
   if (root === 'grammar') {
@@ -2548,7 +2779,7 @@ function renderHome(app) {
   }).join('');
 
   app.innerHTML = `
-    <div class="home-help-link"><a href="#/help">📖 使い方</a></div>
+    <div class="home-help-link"><a id="sync-badge" class="sync-badge" href="#/account"${SYNC.user ? '' : ' hidden'}>${syncBadgeText()}</a><a href="#/help">📖 使い方</a></div>
     <div class="card pet-card">
       <div class="pet-top">
         <span class="pet-level">💗 なかよしLv.${info.level}</span>
@@ -2672,6 +2903,11 @@ function renderSettings(app) {
       <a class="btn secondary" href="#/help">使い方を見る</a>
     </div>
     <div class="card">
+      <h2>☁️ クラウド保存</h2>
+      <p class="muted">${SYNC.user ? `ログイン中：<strong>${escapeHtml(SYNC.user.email || '')}</strong>` : 'ログインすると、スマホを変えても・ほかの端末でも同じ記録で続けられます。'}</p>
+      <a class="btn secondary" href="#/account">${SYNC.user ? 'クラウド保存の状態を見る' : 'ログインする'}</a>
+    </div>
+    <div class="card">
       <h2>🔠 文字の大きさ</h2>
       <p class="muted">これくらいの大きさで表示されます。</p>
       <div class="segmented">${buttonsHtml}</div>
@@ -2770,10 +3006,12 @@ function renderHelp(app) {
         <li><strong>Android（Chrome）</strong>：右上の︙ →「ホーム画面に追加」</li>
       </ul>`)}
     ${item('💾', '記録の保存について（大切）', `
-      <p class="help-note">記録は<strong>このスマホのこのブラウザの中だけ</strong>に保存されます。インターネット上には送られません。</p>
+      <p class="help-note">ログインしていないときは、記録は<strong>このスマホのこのブラウザの中だけ</strong>に保存されます。</p>
       <ul>
-        <li>別のスマホや別のブラウザで開くと、記録は引き継がれません</li>
-        <li>ブラウザの「履歴とWebサイトデータを消去」をすると、記録も消えてしまいます</li>
+        <li>⚙️設定 →「クラウド保存」でログインすると、記録がクラウドにも保存されます。スマホを変えても、ほかの端末でも同じ記録で続けられます</li>
+        <li>ログイン中はホーム左上に「☁️ 保存ずみ」と出ます。「⚠️」のときはタップすると理由が見られます</li>
+        <li>2台で別々に勉強したときは、<strong>あとから保存したほう</strong>の記録が使われます</li>
+        <li>ログインしていないと、ブラウザの「履歴とWebサイトデータを消去」で記録も消えてしまいます</li>
       </ul>`)}
     ${item('🔧', 'こまったとき', `
       <ul>
@@ -2785,6 +3023,69 @@ function renderHelp(app) {
       </ul>`)}
     <div class="actionbar"><a class="btn secondary" href="#/home">ホームに戻る</a></div>
   `;
+}
+
+function formatSyncTime(ms) {
+  if (!ms) return '—';
+  const d = new Date(ms);
+  return `${d.getMonth() + 1}/${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`;
+}
+
+function renderAccount(app) {
+  const back = DATA.progress.game.onboarded ? '#/settings' : '#/welcome';
+  const backBar = `<div class="actionbar"><a class="btn secondary" href="${back}">もどる</a></div>`;
+  const c = SYNC.conflict;
+  if (c) {
+    const box = (title, sum) => `<div class="card"><strong>${title}</strong><br>
+      💗 なかよしLv.${sum.level}<br>🔤 出会った単語 ${sum.words}語<br>📅 学習した日 ${sum.days}日<br>
+      <span class="muted">最後の学習：${sum.lastDay || 'なし'}</span></div>`;
+    app.innerHTML = `
+      ${pageHeroHtml('settings', '☁️ どちらの記録を使う？', 'どっちのぼくと続ける？')}
+      <div class="card">
+        <p>この端末と、クラウドの両方に<strong>別々の記録</strong>があります。使うほうを1つ選んでください。</p>
+        <div class="conflict-grid">${box('📱 この端末', c.local)}${box('☁️ クラウド', c.remote)}</div>
+        <p class="muted">選ばなかったほうの記録は消えます。</p>
+        <button class="btn" data-action="resolveCloudConflict" data-use="cloud">☁️ クラウドの記録を使う</button>
+        <button class="btn secondary" data-action="resolveCloudConflict" data-use="local">📱 この端末の記録を使う</button>
+      </div>`;
+    return;
+  }
+  if (SYNC.user) {
+    const stateLine = { synced: '✅ クラウドに保存ずみ', pending: '⏳ まもなく保存します', syncing: '⏳ 保存中…', error: '⚠️ 保存できていません' }[SYNC.state] || '';
+    app.innerHTML = `
+      ${pageHeroHtml('settings', '☁️ クラウド保存', 'どの端末でも いっしょだよ')}
+      <div class="card">
+        <p>ログイン中：<strong>${escapeHtml(SYNC.user.email || '')}</strong></p>
+        <p><strong>${stateLine}</strong></p>
+        ${SYNC.error ? `<p class="account-error">${escapeHtml(SYNC.error)}</p>` : ''}
+        <p class="muted">最後にクラウドとそろえた時刻：${formatSyncTime(SYNC.lastSyncedAt)}</p>
+        <button class="btn secondary" data-action="cloudSyncNow">今すぐクラウドとそろえる</button>
+      </div>
+      <div class="card">
+        <p class="muted">ログアウトしても、この端末の記録は消えません（クラウドへの保存が止まるだけです）。</p>
+        <button class="btn secondary" data-action="cloudLogout">ログアウト</button>
+      </div>
+      ${backBar}`;
+    return;
+  }
+  const ready = !!getCloudClient();
+  app.innerHTML = `
+    ${pageHeroHtml('settings', '☁️ ログイン', 'ログインすると記録がクラウドにも残るよ')}
+    <div class="card account-form">
+      <p>単語帳・筋トレアプリと<strong>同じメールアドレスとパスワード</strong>でログインできます。</p>
+      ${ready ? '' : '<p class="account-error">クラウドにつながりません。電波のよいところで開きなおしてください。</p>'}
+      <label for="acc-email">メールアドレス</label>
+      <input id="acc-email" type="email" autocomplete="username" inputmode="email" value="${escapeHtml(APP_STATE.accountEmail || '')}">
+      <label for="acc-pass">パスワード</label>
+      <input id="acc-pass" type="password" autocomplete="current-password">
+      ${APP_STATE.accountError ? `<p class="account-error">${escapeHtml(APP_STATE.accountError)}</p>` : ''}
+      <button class="btn" data-action="cloudLogin"${APP_STATE.accountBusy || !ready ? ' disabled' : ''}>${APP_STATE.accountBusy ? 'ログイン中…' : 'ログイン'}</button>
+      <p class="muted" style="margin:6px 0 0;">アカウントがない・パスワードを忘れたときは、管理者に聞いてください。</p>
+    </div>
+    <div class="card">
+      <p class="muted" style="margin:0;">ログインしなくても、今までどおりこの端末の中だけで使えます。</p>
+    </div>
+    ${backBar}`;
 }
 
 function renderGrammarList(app) {
@@ -3235,6 +3536,7 @@ function renderWelcome(app, step) {
       <p><strong>いっしょに目標スコアを目指そう！</strong></p>
     </div>
     <a class="btn" href="#/welcome/name">いいよ！</a>
+    <a class="btn secondary" href="#/account">ほかの端末で使っていた人は ログイン</a>
   </div>`;
 }
 
@@ -3529,11 +3831,73 @@ const ACTIONS = {
     APP_STATE.selectedCalendarDay = APP_STATE.selectedCalendarDay === d.date ? null : d.date;
     render();
   },
+  cloudLogin: async () => {
+    const email = document.getElementById('acc-email').value.trim();
+    const password = document.getElementById('acc-pass').value;
+    APP_STATE.accountEmail = email;
+    if (!email || !password) { APP_STATE.accountError = 'メールアドレスとパスワードを入れてください'; render(); return; }
+    APP_STATE.accountError = '';
+    APP_STATE.accountBusy = true;
+    render();
+    try {
+      const result = await cloudLogin(email, password);
+      APP_STATE.accountBusy = false;
+      if (result === 'conflict') { render(); return; }
+      if (result === 'pulled') APP_STATE.gameToast = '☁️ クラウドの記録を読みこみました';
+      else if (result === 'pushed') APP_STATE.gameToast = '☁️ この端末の記録をクラウドに保存しました';
+      finishCloudSetup();
+    } catch (e) {
+      APP_STATE.accountBusy = false;
+      APP_STATE.accountError = e.message;
+      render();
+    }
+  },
+  cloudLogout: async () => {
+    if (!confirm('ログアウトしますか？\nこの端末の記録は消えません。クラウドへの保存が止まります。')) return;
+    await cloudLogout();
+    render();
+  },
+  cloudSyncNow: async () => {
+    const result = await syncNow();
+    if (result === 'pulled') APP_STATE.gameToast = '☁️ ほかの端末の記録を読みこみました';
+    render();
+  },
+  resolveCloudConflict: async (d) => {
+    const useCloud = d.use === 'cloud';
+    const msg = useCloud ? 'クラウドの記録を使います。この端末の記録は消えます。よろしいですか？'
+      : 'この端末の記録を使います。クラウドの記録は上書きされて消えます。よろしいですか？';
+    if (!confirm(msg)) return;
+    try {
+      await resolveCloudConflict(useCloud);
+      APP_STATE.gameToast = '☁️ 記録をそろえました';
+      finishCloudSetup();
+    } catch (e) {
+      setSyncState('error', cloudErrorMessage(e));
+      render();
+    }
+  },
 };
 
+// ログイン・食いちがい解決のあと、取りこんだデータで起動処理をやりなおして次の画面へ
+function finishCloudSetup() {
+  initGameState(DATA);
+  initJourney(DATA);
+  updateJourney(true);
+  save(DATA);
+  location.hash = DATA.progress.game.onboarded ? '#/home' : '#/welcome';
+  render();
+}
+
 if (typeof window !== 'undefined') {
-  window.addEventListener('DOMContentLoaded', () => {
+  window.addEventListener('DOMContentLoaded', async () => {
     DATA = load();
+    // ログイン済みなら、画面を描く前にクラウドの最新版を取りこむ(電波が悪いときは待ちすぎない)
+    if (hasStoredCloudSession()) {
+      document.getElementById('app').innerHTML = '<p class="muted" style="text-align:center; padding-top:40vh;">☁️ 記録を読みこみ中…</p>';
+      const pending = initCloud().catch(() => 'error');
+      const first = await withTimeout(pending, CLOUD.bootTimeoutMs);
+      if (first === 'timeout') pending.then(afterBackgroundSync); // 遅れて届いたら、あとから画面に反映
+    }
     initGameState(DATA);
     initJourney(DATA);
     updateJourney(true);
@@ -3549,6 +3913,15 @@ if (typeof window !== 'undefined') {
     render();
     window.addEventListener('hashchange', render);
     startCatIdleLoop();
+    if (!hasStoredCloudSession()) initCloud().catch(() => {}); // 部品の準備だけしておく
+    if (SYNC.state === 'conflict') location.hash = '#/account';
+    // 画面を閉じる/切りかえるときは待たずに保存、戻ってきたらほかの端末の更新を取りこむ
+    document.addEventListener('visibilitychange', () => {
+      if (!SYNC.user) return;
+      if (document.visibilityState === 'hidden') { if (isLocalDirty(DATA)) syncNow(); }
+      else syncNow().then(afterBackgroundSync);
+    });
+    window.addEventListener('online', () => { if (SYNC.user) syncNow().then(afterBackgroundSync); });
   });
 }
 </script>
