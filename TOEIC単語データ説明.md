@@ -11,7 +11,7 @@
 
 ## まだアプリに入っていない候補データ
 
-`~/Desktop/TOEIC_app/Contents/toeic_vocab.csv`（4,059語、NGSL基準）に、難易度別の分類がすでに入っている。
+`~/Dev/TOEIC_app/Contents/toeic_vocab.csv`（4,059語、NGSL基準）に、難易度別の分類がすでに入っている。
 
 | tier | 語数 | band | 内容 | 日本語訳(jp列) |
 |---|---|---|---|---|

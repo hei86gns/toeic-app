@@ -191,7 +191,7 @@ TOEIC学習者「ゆりあ」専用の個人用TOEIC対策アプリ。パート�
 
 ## 保存場所・関連ファイル
 
-- フォルダ：`~/Desktop/TOEIC_app/`
+- フォルダ：`~/Dev/TOEIC_app/`
 - **本体（唯一のソースファイル）**：`yuliaToeic_v1.html`
 - 転送用スタブ（編集不要）：`index.html`、`yuriaToeic_v1.html`
 - PWA関連：`manifest.json`、`icon-192.png`、`icon-512.png`、`apple-touch-icon.png`

@@ -221,7 +221,7 @@ v3候補：スコア写真をVision APIで自動入力。
 
 ## 12. Claude Codeへの引き継ぎ情報
 
-- **作業ディレクトリ**：`~/Desktop/TOEIC_app/`
+- **作業ディレクトリ**：`~/Dev/TOEIC_app/`
 - **GitHubリポジトリ**：新規作成（`hei86gns/toeic-app` 想定）。v1完成後にGitHub Pagesへデプロイ。
 - **引き継ぎファイル**：
   - 本仕様書（`TOEIC対策アプリ_設計仕様書.md`）
